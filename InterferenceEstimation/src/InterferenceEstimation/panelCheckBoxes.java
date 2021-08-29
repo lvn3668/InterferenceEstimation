@@ -18,6 +18,11 @@ import java.util.*;
  * Department of Mathematics Indiana University Bloomington 
  */
 public class panelCheckBoxes{
+	
+	public panelCheckBoxes()
+	{
+		
+	}
     
     /**
      * Creates a new instance of panelCheckBoxes
@@ -26,10 +31,10 @@ public class panelCheckBoxes{
      */
     public panelCheckBoxes(String stringForCheckbox1, String stringForCheckbox2) {
         try {
-			panel = new JPanel();
-			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-			nullmodel = new String(stringForCheckbox1);
-			altmodel = new String(stringForCheckbox2);
+			this.setPanel(new JPanel());
+			this.getPanel().setLayout(new BoxLayout(this.panel, BoxLayout.Y_AXIS));
+			this.setNullmodel(new String(stringForCheckbox1));
+			this.setAltmodel(new String(stringForCheckbox2));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -41,9 +46,9 @@ public class panelCheckBoxes{
      * @return JPanel
      */
     public JPanel getPanel() {
-        return panel;
+        return this.panel;
     }
-    private JCheckBox createCheckBoxes(String label, boolean selectedState){
+    static JCheckBox createCheckBoxes(String label, boolean selectedState){
         // checkboxes for options
         try {
 			JCheckBox checkbox = new JCheckBox(label);
@@ -62,35 +67,114 @@ public class panelCheckBoxes{
      * @return JCheckBox
      */
     public JCheckBox getNullCheckBox() {
-        return nullModelcheckbox;
+        return getNullModelcheckbox();
     }
     /**
      * returns checkbox corresponding to alternate model
      * @return JCheckBox
      */
     public JCheckBox getAltModelCheckBox() {
-        return alternateModelcheckbox;
+        return getAlternateModelcheckbox();
     }
     
     /**
-     * creates a panel with the specified number of checkboxes
-     * @param numberOfCheckBoxes integer specifying number of checkboxes to be created
-     */
-    public void createPanel(int numberOfCheckBoxes) {
-        try {
-			nullModelcheckbox = createCheckBoxes(nullmodel, true);
-			alternateModelcheckbox = createCheckBoxes(altmodel, true);
-			panel.add(nullModelcheckbox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 0));
-			panel.add(alternateModelcheckbox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 0));
+	 * @return the nullModelcheckbox
+	 */
+	JCheckBox getNullModelcheckbox() {
+		return this.nullModelcheckbox;
+	}
+
+	/**
+	 * @param nullModelcheckbox the nullModelcheckbox to set
+	 */
+	void setNullModelcheckbox(JCheckBox nullModelcheckbox) {
+		try {
+			this.nullModelcheckbox = nullModelcheckbox;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
-    
-    private JPanel panel;
+	}
+
+	/**
+	 * @return the alternateModelcheckbox
+	 */
+	JCheckBox getAlternateModelcheckbox() {
+		return this.alternateModelcheckbox;
+	}
+
+	/**
+	 * @param alternateModelcheckbox the alternateModelcheckbox to set
+	 */
+	void setAlternateModelcheckbox(JCheckBox alternateModelcheckbox) {
+		try {
+			this.alternateModelcheckbox = alternateModelcheckbox;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private JPanel panel;
     private JCheckBox nullModelcheckbox, alternateModelcheckbox;
     private String nullmodel, altmodel;
+    private UIUtility utility;
+	/**
+	 * @return the nullmodel
+	 */
+	String getNullmodel() {
+		return this.nullmodel;
+	}
+
+	/**
+	 * @param nullmodel the nullmodel to set
+	 */
+	private void setNullmodel(String nullmodel) {
+		this.nullmodel = nullmodel;
+	}
+
+	/**
+	 * @return the altmodel
+	 */
+	String getAltmodel() {
+		return this.altmodel;
+	}
+
+	/**
+	 * @param altmodel the altmodel to set
+	 */
+	private void setAltmodel(String altmodel) {
+		try {
+			this.altmodel = altmodel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @param panel the panel to set
+	 */
+	private void setPanel(JPanel panel) {
+		try {
+			this.panel = panel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @return the utility
+	 */
+	public UIUtility getUtility() {
+		return utility;
+	}
+
+	/**
+	 * @param utility the utility to set
+	 */
+	public void setUtility(UIUtility utility) {
+		this.utility = utility;
+	}
 }

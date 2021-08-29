@@ -291,16 +291,16 @@ public class Interference {
 			int counter=0;
 			numberOfTetrads = sampleSize;
 			if(nullModel) {
-			    simulatedMValuesUnderNullModel = new int[NumberOfSimulations];
-			    simulatedNullMinNegLogLikeValues = new double[NumberOfSimulations];
+			    simulatedMValuesUnderNullModel = new Integer[NumberOfSimulations];
+			    simulatedNullMinNegLogLikeValues = new Double[NumberOfSimulations];
 			}
 			if(altModel) {
-			    simulatedMValuesUnderAltModel = new int[NumberOfSimulations];
-			    simulatedPValuesUnderAltModel = new double[NumberOfSimulations];
-			    simulatedMinNegLogLikeValuesUnderAltModel = new double[NumberOfSimulations];
+			    simulatedMValuesUnderAltModel = new Integer[NumberOfSimulations];
+			    simulatedPValuesUnderAltModel = new Double[NumberOfSimulations];
+			    simulatedMinNegLogLikeValuesUnderAltModel = new Double[NumberOfSimulations];
 			}
 			if(nullModel && altModel){
-			    simulatedLikelihoodValues = new double[NumberOfSimulations];
+			    simulatedLikelihoodValues = new Double[NumberOfSimulations];
 			}
 			tetradData = new int[numberOfTetrads][numberOfIntervals];
 			// it needs intermarker distances
@@ -630,7 +630,7 @@ public class Interference {
      * @param number
      * @return calculate factorial 
      */
-    private double computefactorial(int number) {
+    private static double computefactorial(int number) {
         try {
 			double answer=1.00;
 			double factNum = number;
@@ -854,7 +854,7 @@ public class Interference {
     * @return 
     */
     
-    private String concatenate(int[] intArray) {
+    private static String concatenate(int[] intArray) {
         try {
 			String tmp="";
 			for(int i=0;i<intArray.length;i++)
@@ -1300,7 +1300,7 @@ public class Interference {
      * returns vector of simulated null-m values
      * @return Vector of integers
      */
-    public double[] getSimulatedNullModelLogLike() {
+    public Double[] getSimulatedNullModelLogLike() {
         try {
 			return simulatedNullMinNegLogLikeValues;
 		} catch (Exception e) {
@@ -1313,7 +1313,7 @@ public class Interference {
      * returns vector of simulated p values under alternate model
      * @return Vector of doubles
      */
-    public double[] getSimulatedAltPValues() {
+    public Double[] getSimulatedAltPValues() {
         try {
 			return simulatedPValuesUnderAltModel;
 		} catch (Exception e) {
@@ -1326,7 +1326,7 @@ public class Interference {
      * returns vector of likelihood values under alternate model
      * @return Vector of doubles
      */
-    public double[] getSimulatedAltModelLogLike() {
+    public Double[] getSimulatedAltModelLogLike() {
         try {
 			return simulatedMinNegLogLikeValuesUnderAltModel;
 		} catch (Exception e) {
@@ -1339,7 +1339,7 @@ public class Interference {
      * 
      * @return Array of values generated from Simulated Model (Null Hypothesis Model)
      */
-    public int[] getSimulatedNullModelMValues() {
+    public Integer[] getSimulatedNullModelMValues() {
         try {
 			return simulatedMValuesUnderNullModel;
 		} catch (Exception e) {
@@ -1351,7 +1351,7 @@ public class Interference {
     /**
      * return Array of values generated from Alt Model  
     */
-    public int[] getSimulatedAltModelValues() {
+    public Integer[] getSimulatedAltModelValues() {
         try {
 			return simulatedMValuesUnderAltModel;
 		} catch (Exception e) {
@@ -1419,13 +1419,13 @@ public class Interference {
     private int numberOfSimulations; // from VB Code 
     private int copiedTetradData[][];
     
-    private int simulatedMValuesUnderNullModel[];
-    private double simulatedNullMinNegLogLikeValues[];
-    private double simulatedMinNegLogLikeValuesUnderAltModel[];
-    private int simulatedMValuesUnderAltModel[];
-    private double simulatedPValuesUnderAltModel[];
-    private double simulatedLikelihoodValues[];
-    private double likelihoodRatio; 
+    private Integer simulatedMValuesUnderNullModel[];
+    private Double simulatedNullMinNegLogLikeValues[];
+    private Double simulatedMinNegLogLikeValuesUnderAltModel[];
+    private Integer simulatedMValuesUnderAltModel[];
+    private Double simulatedPValuesUnderAltModel[];
+    private Double simulatedLikelihoodValues[];
+    private Double likelihoodRatio; 
     private String fname="";
     private boolean  doSims=false;
     private int current;

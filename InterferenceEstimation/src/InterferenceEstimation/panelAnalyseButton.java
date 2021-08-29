@@ -24,24 +24,8 @@ public class panelAnalyseButton{
      */
     public panelAnalyseButton() {
         try {
-			panel = new JPanel();
-			analyseButton = new JButton();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    /**
-     * creates a panel with the specified string on the button
-     * @param label Label to be displayed on the button in the panel
-     */
-    public void createPanel(String label){
-        try {
-			analyseButton = new JButton(label);
-			analyseButton.setFont(new Font("ArialBold",Font.BOLD, 15));
-			analyseButton.setToolTipText("Computes inteference parameter under the chosen model");
-			panel.add(analyseButton);        
-			labelOnButton = label;
+			this.setPanel(new JPanel());
+			this.setAnalyseButton(new JButton());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,23 +36,75 @@ public class panelAnalyseButton{
      * @return JPanel
      */
     public JPanel getPanel() {
-        return panel;
+        return this.panel;
     }
     /**
      * returns the button added to the panel
      * @return JPanel
      */
     public JButton getButton() {
-        return analyseButton;
+        return this.analyseButton;
     }
-    /**
-     * returns Label displayed alongside the button
-     * @return JLabel containing the displayed label
-     */
-    public String getLabel() {
-        return labelOnButton;
-    }
+
     private JPanel panel;
     private JButton analyseButton;
-    private String labelOnButton;
+    private String labelValue;
+    private UIUtility utility;
+	/**
+	 * @return the utility
+	 */
+	public UIUtility getUtility() {
+		return this.utility;
+	}
+	/**
+	 * @param utility the utility to set
+	 */
+	private void setUtility(UIUtility utility) {
+		this.utility = utility;
+	}
+	/**
+	 * @return the analyseButton
+	 */
+	JButton getAnalyseButton() {
+		return this.analyseButton;
+	}
+	/**
+	 * @param analyseButton the analyseButton to set
+	 */
+	void setAnalyseButton(JButton analyseButton) {
+		try {
+			this.analyseButton = analyseButton;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @return the labelValue
+	 */
+	private String getLabelValue() {
+		return this.labelValue;
+	}
+	/**
+	 * @param labelValue the labelValue to set
+	 */
+	void setLabelValue(String labelOnButton) {
+		try {
+			this.labelValue = labelOnButton;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @param panel the panel to set
+	 */
+	private void setPanel(JPanel panel) {
+		try {
+			this.panel = panel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

@@ -64,7 +64,6 @@ public class HelpPanel {
                                            String description) {
     java.net.URL imgURL = HelpPanel.class.getResource(path);
     if (imgURL != null) {
-        //System.out.println("yenthuku");
         return new ImageIcon(imgURL, description);
     } else {
         System.err.println("Couldn't find file: " + path);

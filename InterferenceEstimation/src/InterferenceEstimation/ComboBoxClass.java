@@ -22,7 +22,7 @@ public class ComboBoxClass implements ItemListener{
     /** Creates a new instance of ComboBoxClass */
     public ComboBoxClass() {
         try {
-			jcomboboxoptions = new JComboBox<String>();
+			setJcomboboxoptions(new JComboBox<String>());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -37,11 +37,11 @@ public class ComboBoxClass implements ItemListener{
      */
     final void createVector(int lowerLimit, int upperLimit, int step) {
         try {
-			Vector<String> choices = new Vector<String>();
+			Vector<String> comboboxvalues = new Vector<String>();
 			
 			for(int x=lowerLimit;x<=upperLimit;x+=step)
-			     choices.add(x+"");        
-			jcomboboxoptions = new JComboBox<String>(choices);
+			     comboboxvalues.add(String.valueOf(x));        
+			setJcomboboxoptions(new JComboBox<String>(comboboxvalues));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,10 +52,10 @@ public class ComboBoxClass implements ItemListener{
      * sets the selected value of the combo box to that of the specified integer
      * @param number number to set the selected number in the combo box to
      */
-    final void setSelectedNumber(int number) {
+    final void setSelectedNumber(Integer number) {
         try {
-			jcomboboxoptions.setSelectedItem(number);
-			selectedNumber = number;
+			getJcomboboxoptions().setSelectedItem(number);
+			setSelectedNumber(number);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -66,14 +66,14 @@ public class ComboBoxClass implements ItemListener{
      * @return vector containing numbers in the combo box
      */
     final public Vector<String> getVector() {
-        return choices;
+        return this.choices;
     }
     /**
      * returns selected number in the combo box
      * @return integer containing selected value of the combo box
      */
     final public int getSelectedNumber() {
-        return selectedNumber;
+        return this.selectedNumber;
     }
     /**
      * listener for changes in items selected or deselected in the combobox
@@ -82,8 +82,8 @@ public class ComboBoxClass implements ItemListener{
     @Override
 	final public void itemStateChanged(ItemEvent itemEvent) {
         try {
-			selectedNumber = new Integer((String)jcomboboxoptions.getSelectedItem()).intValue();
-			setSelectedNumber(selectedNumber);
+			this.setSelectedNumber(new Integer((String)getJcomboboxoptions().getSelectedItem()).intValue());
+			this.setSelectedNumber(getSelectedNumber());
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,9 +94,22 @@ public class ComboBoxClass implements ItemListener{
      * @return JComboBox 
      */
     final public JComboBox<String> getComboBox() {
-        return jcomboboxoptions;
+        return getJcomboboxoptions();
     }
-    private JComboBox<String> jcomboboxoptions;
+    /**
+	 * @return the jcomboboxoptions
+	 */
+	public JComboBox<String> getJcomboboxoptions() {
+		return this.jcomboboxoptions;
+	}
+
+	/**
+	 * @param jcomboboxoptions the jcomboboxoptions to set
+	 */
+	public void setJcomboboxoptions(JComboBox<String> jcomboboxoptions) {
+		this.jcomboboxoptions = jcomboboxoptions;
+	}
+	private JComboBox<String> jcomboboxoptions;
     private Vector<String> choices;
     private int selectedNumber;
 }
