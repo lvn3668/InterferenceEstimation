@@ -5,6 +5,7 @@ package InterferenceEstimation;
  * Initially Created on January 17, 2005, 8:21 PM
  */
 
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -21,7 +22,8 @@ import javax.swing.JPanel;
  */
 public class UIUtility{
     
-    /** Creates a new instance of UIUtility */
+    private JPanel mainPanel;
+	/** Creates a new instance of UIUtility */
     public UIUtility() {
         try {
 			this.setPanel(new JPanel());
@@ -54,9 +56,9 @@ public class UIUtility{
     private void createComboBoxes(int lowerLimit, int upperLimit, int step) {
         try {
 			this.setComboBox(new ComboBoxClass());
-			this.getComboBox().createVector(lowerLimit,upperLimit,step);
-			this.getComboBox().setSelectedNumber(5);
-			this.getComboBox().getComboBox().setToolTipText("Choose number of simulations"); //$NON-NLS-1$
+			this.getComboBoxClass().createVector(lowerLimit,upperLimit,step);
+			this.getComboBoxClass().setSelectedNumber(new Integer(5));
+			this.getComboBoxClass().getComboBox().setToolTipText("Choose number of simulations"); //$NON-NLS-1$
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -70,13 +72,13 @@ public class UIUtility{
      * @param step step through value
      * @param defaultValue default value to be selected in the combo box
      */
-    public void createPanel(String labelName, int lower, int upper, int step, int defaultValue) {
+    public void createPanel(String labelName, int lower, int upper, int step, Integer defaultValue) {
         try {
 			this.createLabels(labelName);
 			this.addToPanel(this.getLabel(),0,0);
 			this.createComboBoxes(lower,upper, step);
-			this.addToPanel(getComboBox().getComboBox(),1,0);
-			this.getComboBox().setSelectedNumber(defaultValue);
+			this.addToPanel(getComboBoxClass().getComboBox(),1,0);
+			this.getComboBoxClass().setSelectedNumber(defaultValue);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,12 +87,12 @@ public class UIUtility{
     /**
      * creates panel containing label and an instance of ComboBox class
      */
-    private void createPanel() {
+    private void createSimulationsPanel() {
         try {
 			this.createLabels("Number Of Simulations"); //$NON-NLS-1$
 			this.addToPanel(this.getLabel(),0,0);
 			this.createComboBoxes(0,100,1);
-			this.addToPanel(this.getComboBox().getComboBox(),1,0);
+			this.addToPanel(this.getComboBoxClass().getComboBox(),1,0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -113,8 +115,8 @@ public class UIUtility{
      * returns combobox class
      * @return ComboBox class
      */
-    ComboBoxClass getComboBoxClass() {
-        return getComboBox();
+    protected ComboBoxClass getComboBoxClass() {
+        return this.comboBox;
     }
     /**
      * returns label displayed alongside combo box
@@ -150,12 +152,6 @@ public class UIUtility{
 	}
 
 	/**
-	 * @return the comboBox
-	 */
-	private ComboBoxClass getComboBox() {
-		return this.comboBox;
-	}
-	/**
 	 * @param comboBox the comboBox to set
 	 */
 	private void setComboBox(ComboBoxClass comboBox) {
@@ -190,7 +186,7 @@ public class UIUtility{
 	 * creates a panel with the specified string on the button
 	 * @param label Label to be displayed on the button in the panel
 	 */
-	public void createPanel(String label){
+	public static void createPanel(String label){
 	    try {
 	    	panelAnalyseButton panelanalysebutton = new panelAnalyseButton();
 			panelanalysebutton.setAnalyseButton(new JButton(label));
@@ -203,6 +199,156 @@ public class UIUtility{
 			e.printStackTrace();
 		}
 	}
+	
+	   /**
+     * creates the panel with the specified text
+     */
+    protected void createPanel()
+    {
+        
+        try {
+			setTopLabel(new JLabel(Messages.getString("UIUtility.0"))); //$NON-NLS-1$
+			getTopLabel().setFont(new Font(Messages.getString("UIUtility.1"),Font.BOLD, 12)); //$NON-NLS-1$
+			getMainPanel().add(getTopLabel(), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 20), 0);
+
+			setPaperLabel1(new JLabel(Messages.getString("UIUtility.2"))); //$NON-NLS-1$
+			getPaperLabel1().setFont(new Font("ArialBold",Font.BOLD, 12)); //$NON-NLS-1$
+  
+			setPaperLabel2(new JLabel(Messages.getString("UIUtility.4"))); //$NON-NLS-1$
+			getPaperLabel2().setFont(new Font("ArialBold",Font.BOLD+Font.ITALIC, 12)); //$NON-NLS-1$
+			
+			
+			setPaperLabel3(new JLabel(Messages.getString("UIUtility.6"))); //$NON-NLS-1$
+			getPaperLabel3().setFont(new Font("ArialBold",Font.BOLD, 12)); //$NON-NLS-1$
+			
+			setPaperLabel4(new JLabel(Messages.getString("UIUtility.8"))); //$NON-NLS-1$
+			getPaperLabel4().setFont(new Font("ArialBold",Font.BOLD, 12)); //$NON-NLS-1$
+			
+			getMainPanel().add(getPaperLabel1(),new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 10), 1);
+			getMainPanel().add(getPaperLabel2(),new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 10), 2);
+			getMainPanel().add(getPaperLabel3(),new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 10), 3);
+			getMainPanel().add(getPaperLabel4(),new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 10), 4);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+    }
+    
+    /**
+	 * @return the topLabel
+	 */
+	public JLabel getTopLabel() {
+		return this.topLabel;
+	}
+	/**
+	 * @param topLabel the topLabel to set
+	 */
+	private void setTopLabel(JLabel topLabel) {
+		try {
+			this.topLabel = topLabel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @return the mainPanel
+	 */
+	public JPanel getMainPanel() {
+		return this.mainPanel;
+	}
+	/**
+	 * @param mainPanel the mainPanel to set
+	 */
+	private void setMainPanel(JPanel mainPanel) {
+		try {
+			this.mainPanel = mainPanel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @return the paperLabel1
+	 */
+	public JLabel getPaperLabel1() {
+		return this.paperLabel1;
+	}
+	/**
+	 * @param paperLabel1 the paperLabel1 to set
+	 */
+	private void setPaperLabel1(JLabel paperLabel1) {
+		try {
+			this.paperLabel1 = paperLabel1;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @return the paperLabel2
+	 */
+	public JLabel getPaperLabel2() {
+		return this.paperLabel2;
+	}
+	/**
+	 * @param paperLabel2 the paperLabel2 to set
+	 */
+	private void setPaperLabel2(JLabel paperLabel2) {
+		try {
+			this.paperLabel2 = paperLabel2;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @return the paperLabel3
+	 */
+	public JLabel getPaperLabel3() {
+		return this.paperLabel3;
+	}
+	/**
+	 * @param paperLabel3 the paperLabel3 to set
+	 */
+	private void setPaperLabel3(JLabel paperLabel3) {
+		try {
+			this.paperLabel3 = paperLabel3;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * @return the paperLabel4
+	 */
+	public JLabel getPaperLabel4() {
+		return this.paperLabel4;
+	}
+	/**
+	 * @param paperLabel4 the paperLabel4 to set
+	 */
+	private void setPaperLabel4(JLabel paperLabel4) {
+		try {
+			this.paperLabel4 = paperLabel4;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private JLabel topLabel, paperLabel1, paperLabel2, paperLabel3, paperLabel4;
 
 	private JPanel panel;
     private ComboBoxClass comboBox;

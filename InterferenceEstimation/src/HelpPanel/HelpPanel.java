@@ -12,6 +12,7 @@ import javax.swing.event.*;
 
 import InterferenceEstimation.FileAndButtonPanel;
 import InterferenceEstimation.UI;
+import InterferenceEstimation.UIUtility;
 import InterferenceEstimation.panelAnalyseButton;
 import InterferenceEstimation.panelCheckBoxes;
 
@@ -24,27 +25,36 @@ import java.util.*;
  */
 public class HelpPanel {
     
-    /** Creates a new instance of HelpPanel */
+    private UIUtility utility;
+	/**
+	 * @return the utility
+	 */
+	public UIUtility getUtility() {
+		return this.utility;
+	}
+	/**
+	 * @param utility the utility to set
+	 */
+	private void setUtility(UIUtility utility) {
+		this.utility = utility;
+	}
+	/**
+	 * @return the mainPanel
+	 */
+	private JPanel getMainPanel() {
+		return this.mainPanel;
+	}
+	/**
+	 * @param mainPanel the mainPanel to set
+	 */
+	private void setMainPanel(JPanel mainPanel) {
+		this.mainPanel = mainPanel;
+	}
+	/** Creates a new instance of HelpPanel */
     public HelpPanel() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         
-    }
-    /**
-     * returns the first line of text displayed
-     * @return JLabel
-     */
-    public JLabel getLabel1()
-    {
-        return paperLabel1;
-    }
-    /**
-     * returns the second line of text displayed
-     * @return JLabel that contains second line of text displayed on the tabbed pane
-     */
-    public JLabel getLabel2()
-    {
-        return paperLabel2;
     }
     /**
      * returns the panel that is created as an instance of the class
@@ -73,7 +83,7 @@ public class HelpPanel {
     /**
      * creates the panel with the specified text
      */
-    public void createPanel()
+   /** private void createPanel()
     {
         
         topLabel = new JLabel("Version 1.0 comprises Lalitha Viswanath's thesis for a Masters Degree in Bioinformatics (2005)");
@@ -103,7 +113,7 @@ public class HelpPanel {
         mainPanel.add(paperLabel4,new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
                 ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 10), 4);
         
-    }
+    } **/
      
  public void createPanel(UI ui) {
 	    try {
@@ -116,10 +126,10 @@ public class HelpPanel {
 			ui.panelForLoadingMainFile.getButton().addActionListener(ui.panelForLoadingMainFile);
 			
 			ui.panelWithCheckBoxes = new panelCheckBoxes("Analyze using counting model", "Analyze using extended counting model");
-			ui.panelWithCheckBoxes.createPanel(2);
+			ui.panelWithCheckBoxes.getUtility().createPanel(2);
 			
 			ui.panelWithAnalyseButton = new panelAnalyseButton();
-			ui.panelWithAnalyseButton.createPanel("Analyze");
+			UIUtility.createPanel("Analyze");
 			
 			ui.panelWithCheckBoxes.getNullCheckBox().addItemListener(ui);
 			ui.panelWithCheckBoxes.getAltModelCheckBox().addItemListener(ui);
@@ -142,6 +152,5 @@ public class HelpPanel {
 		}
 	}
 
-private JPanel mainPanel; 
- private JLabel topLabel, paperLabel1, paperLabel2, paperLabel3, paperLabel4;
+private JPanel mainPanel;
 }

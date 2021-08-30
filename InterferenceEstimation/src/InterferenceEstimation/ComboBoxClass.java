@@ -35,7 +35,7 @@ public class ComboBoxClass implements ItemListener{
      * @param upperLimit integer specifying the upper limit of the combo box
      * @param step integer specifying the number of steps between numbers in the combo box
      */
-    final void createVector(int lowerLimit, int upperLimit, int step) {
+    protected final void createVector(int lowerLimit, int upperLimit, int step) {
         try {
 			Vector<String> comboboxvalues = new Vector<String>();
 			
@@ -52,7 +52,7 @@ public class ComboBoxClass implements ItemListener{
      * sets the selected value of the combo box to that of the specified integer
      * @param number number to set the selected number in the combo box to
      */
-    final void setSelectedNumber(Integer number) {
+    protected final void setSelectedNumber(Integer number) {
         try {
 			getJcomboboxoptions().setSelectedItem(number);
 			setSelectedNumber(number);
@@ -106,7 +106,7 @@ public class ComboBoxClass implements ItemListener{
 	/**
 	 * @param jcomboboxoptions the jcomboboxoptions to set
 	 */
-	public void setJcomboboxoptions(JComboBox<String> jcomboboxoptions) {
+	private void setJcomboboxoptions(JComboBox<String> jcomboboxoptions) {
 		this.jcomboboxoptions = jcomboboxoptions;
 	}
 	private JComboBox<String> jcomboboxoptions;

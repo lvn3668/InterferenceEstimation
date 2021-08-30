@@ -214,7 +214,7 @@ final public class ExecuteBackEnd {
       
 				if(this.analyseNullModelForSimulations)
 				{
-				this.simulatedInterferenceParameterUnderNullModel = new Integer[this.numberOfSimulations];
+				this.setSimulatedInterferenceParameterUnderNullModel(new Integer[this.numberOfSimulations]);
 				this.simulatedInterferenceParameterUnderNullModel = this.getInterference().getSimulatedNullModelMValues();
 				this.simulatedNegativeLogLikelihoodValuesUnderNullModel =  new Double[this.numberOfSimulations];
 				this.simulatedNegativeLogLikelihoodValuesUnderNullModel =  this.getInterference().getSimulatedNullModelLogLike();
@@ -228,7 +228,17 @@ final public class ExecuteBackEnd {
 			}
     }
     
-    /**
+    private void setSimulatedInterferenceParameterUnderNullModel(Integer[] integers) {
+		// TODO Auto-generated method stub
+    	try {
+			this.simulatedInterferenceParameterUnderNullModel = integers;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	/**
      * writes results of simulations or analyses to specified file and directory
      * @param directory directory containing file
      * @param filename file in which results are to be written

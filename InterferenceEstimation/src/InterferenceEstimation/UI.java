@@ -51,7 +51,7 @@ public class UI extends JFrame implements ItemListener, MouseListener{
    {
       try {
 		helpPanel = new HelpPanel();
-		  helpPanel.createPanel();      
+		  helpPanel.getUtility().createPanel();      
 		  tabbedPane.addTab("About",helpPanel.getPanel());
 	} catch (Exception e) {
 		// TODO Auto-generated catch block

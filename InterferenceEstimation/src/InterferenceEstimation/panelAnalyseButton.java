@@ -65,13 +65,13 @@ public class panelAnalyseButton{
 	/**
 	 * @return the analyseButton
 	 */
-	JButton getAnalyseButton() {
+	protected JButton getAnalyseButton() {
 		return this.analyseButton;
 	}
 	/**
 	 * @param analyseButton the analyseButton to set
 	 */
-	void setAnalyseButton(JButton analyseButton) {
+	protected void setAnalyseButton(JButton analyseButton) {
 		try {
 			this.analyseButton = analyseButton;
 		} catch (Exception e) {
@@ -88,7 +88,7 @@ public class panelAnalyseButton{
 	/**
 	 * @param labelValue the labelValue to set
 	 */
-	void setLabelValue(String labelOnButton) {
+	protected void setLabelValue(String labelOnButton) {
 		try {
 			this.labelValue = labelOnButton;
 		} catch (Exception e) {

@@ -29,21 +29,27 @@ public class SimulationsPanel{
      * Creates a new instance of SimulationsPanel; default constructor for Simulations panel
      */
     public SimulationsPanel() {
-        setMainPanel(new JPanel());
-        getMainPanel().setLayout(new GridBagLayout());
-        
-        setFileAndButtonPanel(new FileAndButtonPanel());
-        setPanelWithNullMComboBoxes(new UIUtility());
-        
-        setAltpTextBox(new JTextField());
-        getAltpTextBox().setColumns(5);
-        getAltpTextBox().setText("0"); //$NON-NLS-1$
-        
-        setAnalyseButtonPanel(new panelAnalyseButton());
-        getAnalyseButtonPanel().getUtility().createPanel("Analyze"); //$NON-NLS-1$
-        
-        setAltPPanel(new JPanel());
-        setPanelWithCheckBoxForAnalyseOptions(new panelCheckBoxes("Analyze using counting model", "Analyze using extended counting model")); //$NON-NLS-1$ //$NON-NLS-2$
+        try {
+			setMainPanel(new JPanel());
+			getMainPanel().setLayout(new GridBagLayout());
+			
+			setFileAndButtonPanel(new FileAndButtonPanel());
+			setPanelWithNullMComboBoxes(new UIUtility());
+			
+			setAltpTextBox(new JTextField());
+			getAltpTextBox().setColumns(5);
+			getAltpTextBox().setText("0"); //$NON-NLS-1$
+			
+			setAnalyseButtonPanel(new panelAnalyseButton());
+			getAnalyseButtonPanel().getUtility();
+			UIUtility.createPanel("Analyze"); //$NON-NLS-1$
+			
+			setAltPPanel(new JPanel());
+			setPanelWithCheckBoxForAnalyseOptions(new panelCheckBoxes("Analyze using counting model", "Analyze using extended counting model")); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     /**
@@ -77,56 +83,66 @@ public class SimulationsPanel{
      * @param ycoord y coordinate where scroll pane is to be added
      */
     public void add(JScrollPane jscrollPane, int xcoord, int ycoord) {
-        getMainPanel().add(jscrollPane, new GridBagConstraints(xcoord, ycoord, 100, 100, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0), 8);
+        try {
+			getMainPanel().add(jscrollPane, new GridBagConstraints(xcoord, ycoord, 100, 100, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0), 8);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     /**
      * create simulations panel
      */
     public void createPanel() {
-        getFileAndButtonPanel().createPanel("Load distances"); //$NON-NLS-1$
-        getFileAndButtonPanel().getButton().setToolTipText("Enter a file containing intermarker distances"); //$NON-NLS-1$
-        getFileAndButtonPanel().getTextArea().setToolTipText("File containing intermarker distances"); //$NON-NLS-1$
-        
-        getMainPanel().add(getFileAndButtonPanel().getPanel(),new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),0);
-        
-        getPanelWithComboBox().createPanel("Number of Simulations",5,500,5,5); //$NON-NLS-1$
-        getMainPanel().add(getPanelWithComboBox().getPanel(),new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-                ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),1);
-        setSampleSize(new JLabel("Sample Size: ")); //$NON-NLS-1$
-        getSampleSize().setFont(new Font("ArialBold",Font.BOLD, 15)); //$NON-NLS-1$
-        getSampleSize().setToolTipText("Choose sample size"); //$NON-NLS-1$
-        
-        setSampleSizeTextBox(new JTextField());
-        getSampleSizeTextBox().setColumns(5);
-        getSampleSizeTextBox().setToolTipText("Enter an integer sample size greater than 0"); //$NON-NLS-1$
-        
-        setSampleSizePanel(new JPanel());
-        getSampleSizePanel().setLayout(new GridBagLayout());
-        getSampleSizePanel().add(getSampleSize(), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 0);
-        getSampleSizePanel().add(getSampleSizeTextBox(), new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 1);
-        
-        getMainPanel().add(getSampleSizePanel(), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10), 2);
+        try {
+			getFileAndButtonPanel().createPanel("Load distances"); //$NON-NLS-1$
+			getFileAndButtonPanel().getButton().setToolTipText("Enter a file containing intermarker distances"); //$NON-NLS-1$
+			getFileAndButtonPanel().getTextArea().setToolTipText("File containing intermarker distances"); //$NON-NLS-1$
+			
+			getMainPanel().add(getFileAndButtonPanel().getPanel(),new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),0);
+			
+			getPanelWithComboBox().createPanel("Number of Simulations",5,500,5,5); //$NON-NLS-1$
+			getMainPanel().add(getPanelWithComboBox().getPanel(),new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),1);
+			setSampleSize(new JLabel("Sample Size: ")); //$NON-NLS-1$
+			getSampleSize().setFont(new Font("ArialBold",Font.BOLD, 15)); //$NON-NLS-1$
+			getSampleSize().setToolTipText("Choose sample size"); //$NON-NLS-1$
+			
+			setSampleSizeTextBox(new JTextField());
+			getSampleSizeTextBox().setColumns(5);
+			getSampleSizeTextBox().setToolTipText("Enter an integer sample size greater than 0"); //$NON-NLS-1$
+			
+			setSampleSizePanel(new JPanel());
+			getSampleSizePanel().setLayout(new GridBagLayout());
+			getSampleSizePanel().add(getSampleSize(), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 0);
+			getSampleSizePanel().add(getSampleSizeTextBox(), new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 1);
+			
+			getMainPanel().add(getSampleSizePanel(), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10), 2);
 
-        JLabel title = new JLabel("  \n  Parameters for the model for the simulation  \n  "); //$NON-NLS-1$
-        title.setFont(new Font("ArialBold",Font.ITALIC, 16)); //$NON-NLS-1$
-        getMainPanel().add(title,new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-                ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 40),3);
-        
-        getPanelWithNullMComboBoxes().createPanel("Interference parameter (m): ", 0, 20,1,0); //$NON-NLS-1$
-        getMainPanel().add(getPanelWithNullMComboBoxes().getPanel(),new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-                ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0),4);
-    
-        setPvalue(new JLabel("Proportion of non-interfering crossovers (p): ")); //$NON-NLS-1$
-        getPvalue().setFont(new Font("ArialBold",Font.BOLD, 15)); //$NON-NLS-1$
-        getPvalue().setToolTipText("Enter a value between 0 and 1"); //$NON-NLS-1$
-        
-        getAltPPanel().add(getPvalue(), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 0);
-        getAltPPanel().add(getAltpTextBox(), new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 1);
-        getMainPanel().add(getAltPPanel(), new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),5);
-        getPanelWithCheckBoxForAnalyseOptions().getUtility().createPanel(2);
-        getMainPanel().add(getPanelWithCheckBoxForAnalyseOptions().getPanel(), new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),6);
-        getMainPanel().add(getAnalyseButtonPanel().getPanel(),new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10), 7);
+			JLabel title = new JLabel("  \n  Parameters for the model for the simulation  \n  "); //$NON-NLS-1$
+			title.setFont(new Font("ArialBold",Font.ITALIC, 16)); //$NON-NLS-1$
+			getMainPanel().add(title,new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 40),3);
+			
+			getPanelWithNullMComboBoxes().createPanel("Interference parameter (m): ", 0, 20,1,0); //$NON-NLS-1$
+			getMainPanel().add(getPanelWithNullMComboBoxes().getPanel(),new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+			        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0),4);
+   
+			setPvalue(new JLabel("Proportion of non-interfering crossovers (p): ")); //$NON-NLS-1$
+			getPvalue().setFont(new Font("ArialBold",Font.BOLD, 15)); //$NON-NLS-1$
+			getPvalue().setToolTipText("Enter a value between 0 and 1"); //$NON-NLS-1$
+			
+			getAltPPanel().add(getPvalue(), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 0);
+			getAltPPanel().add(getAltpTextBox(), new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0), 1);
+			getMainPanel().add(getAltPPanel(), new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),5);
+			getPanelWithCheckBoxForAnalyseOptions().getUtility().createPanel(2);
+			getMainPanel().add(getPanelWithCheckBoxForAnalyseOptions().getPanel(), new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10),6);
+			getMainPanel().add(getAnalyseButtonPanel().getPanel(),new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 10), 7);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     /**
@@ -230,7 +246,12 @@ public class SimulationsPanel{
 	 * @param fileAndButtonPanel the fileAndButtonPanel to set
 	 */
 	public void setFileAndButtonPanel(FileAndButtonPanel fileAndButtonPanel) {
-		this.fileAndButtonPanel = fileAndButtonPanel;
+		try {
+			this.fileAndButtonPanel = fileAndButtonPanel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -244,7 +265,12 @@ public class SimulationsPanel{
 	 * @param mainPanel the mainPanel to set
 	 */
 	public void setMainPanel(JPanel mainPanel) {
-		this.mainPanel = mainPanel;
+		try {
+			this.mainPanel = mainPanel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -258,7 +284,12 @@ public class SimulationsPanel{
 	 * @param panelWithComboBox the panelWithComboBox to set
 	 */
 	public void setPanelWithComboBox(UIUtility panelWithComboBox) {
-		this.panelWithComboBox = panelWithComboBox;
+		try {
+			this.panelWithComboBox = panelWithComboBox;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
