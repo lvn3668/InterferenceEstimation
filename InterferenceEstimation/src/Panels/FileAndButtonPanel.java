@@ -1,4 +1,4 @@
-package InterferenceEstimation;
+package Panels;
 /*
  * FileAndButtonPanel.java
  *
@@ -20,11 +20,11 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
     /** Creates a new instance of FileAndButtonPanel */
     public FileAndButtonPanel() {
         try {
-			panel = new JPanel();
-			panel.setLayout(new GridBagLayout());
-			fileName = "";
-			file =null;
-			directory = null;
+			setPanel(new JPanel());
+			getPanel().setLayout(new GridBagLayout());
+			setFileName("");
+			setFile(null);
+			setDirectory(null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -37,9 +37,9 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
     public void createPanel(String label) {
         try {
 			addTextAreaForLoadingFile();
-			addToPanel(jtext,5,0);
+			addToPanel(getJtext(),5,0);
 			addButtonForLoadingFile(label);
-			addToPanel(jbutton,7,0);
+			addToPanel(getJbutton(),7,0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
      * @return JPanel (panel)
      */
     public JPanel getPanel() {
-        return panel;
+        return this.panel;
     }
     /**
      * adds the specified component at the specified coordinates using GridBag Layout
@@ -61,7 +61,7 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
      */
     public void addToPanel(JComponent component, int xcoord, int ycoord) {
         try {
-			panel.add(component, new GridBagConstraints(xcoord, ycoord, 1, 1, 0.0, 0.0
+			this.getPanel().add(component, new GridBagConstraints(xcoord, ycoord, 1, 1, 0.0, 0.0
 			        ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 5, 0, 0), 0, 0));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -70,10 +70,10 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
     }
     private void addTextAreaForLoadingFile() {
         try {
-			jtext = new JTextField();
-			jtext.setColumns(15);
-			jtext.setEnabled(false);
-			jtext.setToolTipText("File containing tetrad data");
+			setJtext(new JTextField());
+			getJtext().setColumns(15);
+			getJtext().setEnabled(false);
+			getJtext().setToolTipText("File containing tetrad data");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,9 +83,9 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
     private void addButtonForLoadingFile(String label) {
         // button for loading file
         try {
-			jbutton = new JButton(label);
-			jbutton.setFont(new Font("ArialBold",Font.BOLD, 15));
-			jbutton.setToolTipText("Load file containing tetrad data");
+			setJbutton(new JButton(label));
+			getJbutton().setFont(new Font("ArialBold",Font.BOLD, 15));
+			getJbutton().setToolTipText("Load file containing tetrad data");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
      * @return text area 
      */
     public JTextField getTextArea() {
-        return jtext;
+        return getJtext();
     }
     /**
      * method that calls action listener that performs desired action
@@ -107,12 +107,12 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
         try {
 			JFileChooser jfilechooser =  new JFileChooser();
 			jfilechooser.setVisible(true);
-			jfilechooser.setFont(new Font("ArialBold",Font.BOLD, 15));
+			jfilechooser.setFont(new Font("ArialBold",Font.BOLD, 15)); //$NON-NLS-1$
 			int returnVal = jfilechooser.showOpenDialog(parent);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-			    file = jfilechooser.getSelectedFile();
-			    directory = jfilechooser.getCurrentDirectory();
-			    fileName = file.getName();
+			    setFile(jfilechooser.getSelectedFile());
+			    setDirectory(jfilechooser.getCurrentDirectory());
+			    setFileName(getFile().getName());
 			    
 			}
 		} catch (HeadlessException e) {
@@ -131,8 +131,8 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
         try {
 			if(actionEvent.getSource().getClass().getName().equals("javax.swing.JButton")) {
 			    ButtonPressed((JComponent)actionEvent.getSource());
-			    if(file !=null)
-			        jtext.setText(file.getName());           
+			    if(getFile() !=null)
+			        getJtext().setText(getFile().getName());           
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -144,28 +144,28 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
      * @return File
      */
     public File getFile() {
-        return file;
+        return this.file;
     }
     /**
      * returns directory containing the file
      * @return Directory containing the file
      */
     public File getDirectory() {
-        return directory;
+        return this.directory;
     }
     /**
      * returns button
      * @return button
      */
     public JButton getButton() {
-        return jbutton;
+        return this.jbutton;
     }
     /**
      * returns string representation of file name
      * @return string containing file name
      */
     public String getFilename() {
-        return fileName;
+        return this.fileName;
     }
     /**
      * method for action to be performed when mouseclicked on a component
@@ -212,4 +212,88 @@ public class FileAndButtonPanel implements MouseListener, ActionListener{
     @Override
 	public void mouseReleased(MouseEvent mouseEvent) {
     }
+	/**
+	 * @param panel the panel to set
+	 */
+	private void setPanel(JPanel panel) {
+		try {
+			this.panel = panel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @return the fileName
+	 */
+	public String getFileName() {
+		return this.fileName;
+	}
+	/**
+	 * @param fileName the fileName to set
+	 */
+	private void setFileName(String fileName) {
+		try {
+			this.fileName = fileName;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @param file the file to set
+	 */
+	private void setFile(File file) {
+		try {
+			this.file = file;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @param directory the directory to set
+	 */
+	private void setDirectory(File directory) {
+		try {
+			this.directory = directory;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @return the jtext
+	 */
+	public JTextField getJtext() {
+		return this.jtext;
+	}
+	/**
+	 * @param jtext the jtext to set
+	 */
+	private void setJtext(JTextField jtext) {
+		try {
+			this.jtext = jtext;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * @return the jbutton
+	 */
+	public JButton getJbutton() {
+		return this.jbutton;
+	}
+	/**
+	 * @param jbutton the jbutton to set
+	 */
+	private void setJbutton(JButton jbutton) {
+		try {
+			this.jbutton = jbutton;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

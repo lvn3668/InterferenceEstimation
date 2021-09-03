@@ -1,4 +1,4 @@
-package InterferenceEstimation;
+package Panels;
 /*
  * panelAnalyseButton.java
  *
@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+
+import InterferenceEstimation.UIUtility;
+
 import java.io.*;
 import java.util.*;
 
@@ -60,18 +63,23 @@ public class panelAnalyseButton{
 	 * @param utility the utility to set
 	 */
 	private void setUtility(UIUtility utility) {
-		this.utility = utility;
+		try {
+			this.utility = utility;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * @return the analyseButton
 	 */
-	protected JButton getAnalyseButton() {
+	public JButton getAnalyseButton() {
 		return this.analyseButton;
 	}
 	/**
 	 * @param analyseButton the analyseButton to set
 	 */
-	protected void setAnalyseButton(JButton analyseButton) {
+	public void setAnalyseButton(JButton analyseButton) {
 		try {
 			this.analyseButton = analyseButton;
 		} catch (Exception e) {
@@ -88,7 +96,7 @@ public class panelAnalyseButton{
 	/**
 	 * @param labelValue the labelValue to set
 	 */
-	protected void setLabelValue(String labelOnButton) {
+	public void setLabelValue(String labelOnButton) {
 		try {
 			this.labelValue = labelOnButton;
 		} catch (Exception e) {

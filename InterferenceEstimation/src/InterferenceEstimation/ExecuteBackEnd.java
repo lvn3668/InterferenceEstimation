@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import resultsPanel.ResultsPanel;
+import Panels.ResultsPanel;
 
 import java.io.*;
 import java.util.*;

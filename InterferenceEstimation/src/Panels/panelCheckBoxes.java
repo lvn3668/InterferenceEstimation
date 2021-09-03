@@ -1,4 +1,4 @@
-package InterferenceEstimation;
+package Panels;
 /*
  * panelCheckBoxes.java
  *
@@ -9,6 +9,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+
+import InterferenceEstimation.UIUtility;
+
 import java.io.*;
 import java.util.*;
 
@@ -48,13 +51,13 @@ public class panelCheckBoxes{
     public JPanel getPanel() {
         return this.panel;
     }
-    static JCheckBox createCheckBoxes(String label, boolean selectedState){
+    public static JCheckBox createCheckBoxes(String label, boolean selectedState){
         // checkboxes for options
         try {
 			JCheckBox checkbox = new JCheckBox(label);
 			checkbox.setToolTipText(label);
 			checkbox.setSelected(selectedState);
-			checkbox.setFont(new Font("ArialBold",Font.BOLD, 15));
+			checkbox.setFont(new Font("ArialBold",Font.BOLD, 15)); //$NON-NLS-1$
 			return checkbox;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -80,14 +83,14 @@ public class panelCheckBoxes{
     /**
 	 * @return the nullModelcheckbox
 	 */
-	JCheckBox getNullModelcheckbox() {
+	public JCheckBox getNullModelcheckbox() {
 		return this.nullModelcheckbox;
 	}
 
 	/**
 	 * @param nullModelcheckbox the nullModelcheckbox to set
 	 */
-	void setNullModelcheckbox(JCheckBox nullModelcheckbox) {
+	public void setNullModelcheckbox(JCheckBox nullModelcheckbox) {
 		try {
 			this.nullModelcheckbox = nullModelcheckbox;
 		} catch (Exception e) {
@@ -99,14 +102,14 @@ public class panelCheckBoxes{
 	/**
 	 * @return the alternateModelcheckbox
 	 */
-	JCheckBox getAlternateModelcheckbox() {
+	public JCheckBox getAlternateModelcheckbox() {
 		return this.alternateModelcheckbox;
 	}
 
 	/**
 	 * @param alternateModelcheckbox the alternateModelcheckbox to set
 	 */
-	void setAlternateModelcheckbox(JCheckBox alternateModelcheckbox) {
+	public void setAlternateModelcheckbox(JCheckBox alternateModelcheckbox) {
 		try {
 			this.alternateModelcheckbox = alternateModelcheckbox;
 		} catch (Exception e) {
@@ -122,7 +125,7 @@ public class panelCheckBoxes{
 	/**
 	 * @return the nullmodel
 	 */
-	String getNullmodel() {
+	public String getNullmodel() {
 		return this.nullmodel;
 	}
 
@@ -130,13 +133,18 @@ public class panelCheckBoxes{
 	 * @param nullmodel the nullmodel to set
 	 */
 	private void setNullmodel(String nullmodel) {
-		this.nullmodel = nullmodel;
+		try {
+			this.nullmodel = nullmodel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * @return the altmodel
 	 */
-	String getAltmodel() {
+	public String getAltmodel() {
 		return this.altmodel;
 	}
 
@@ -168,13 +176,18 @@ public class panelCheckBoxes{
 	 * @return the utility
 	 */
 	public UIUtility getUtility() {
-		return utility;
+		return this.utility;
 	}
 
 	/**
 	 * @param utility the utility to set
 	 */
 	public void setUtility(UIUtility utility) {
-		this.utility = utility;
+		try {
+			this.utility = utility;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

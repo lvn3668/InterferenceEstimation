@@ -10,11 +10,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import InterferenceEstimation.FileAndButtonPanel;
 import InterferenceEstimation.UI;
 import InterferenceEstimation.UIUtility;
-import InterferenceEstimation.panelAnalyseButton;
-import InterferenceEstimation.panelCheckBoxes;
+import Panels.FileAndButtonPanel;
+import Panels.panelAnalyseButton;
+import Panels.panelCheckBoxes;
 
 import java.io.*;
 import java.util.*;

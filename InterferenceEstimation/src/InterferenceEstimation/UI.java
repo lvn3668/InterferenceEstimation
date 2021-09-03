@@ -9,7 +9,10 @@ import java.awt.event.*;
 import javax.swing.event.*;
 
 import HelpPanel.HelpPanel;
-import simulationsPanel.SimulationsPanel;
+import Panels.FileAndButtonPanel;
+import Panels.SimulationsPanel;
+import Panels.panelAnalyseButton;
+import Panels.panelCheckBoxes;
 
 import javax.swing.*;
 import java.io.*;
@@ -21,18 +24,21 @@ import java.util.*;
  * @authors  Elizabeth Housworth and Lalitha Viswanath
  * @affiliation Department of Mathematics Indiana University Bloomington Indiana 
  */
-public class UI extends JFrame implements ItemListener, MouseListener{
+public class UI extends SwingWorker, JFrame { 
+	// extends JFrame
+	//implements ItemListener, MouseListener{
+
 	static final long serialVersionUID = 0;    
     /** Creates a new instance of UI */
     public UI() {
 
         try {
-			mainFrame = new JFrame("Interference Parameter Estimation");
-			contentPane = getContentPane();             
+			setMainFrame(new JFrame("Interference Parameter Estimation"));
+			setContentPane(getContentPane());             
       final SwingWorker swingWorker = new SwingWorker() {
 			    @Override
 				public Object construct() {
-			        helpPanel.createPanel((UI)this);
+			        getHelpPanel().createPanel((UI)this);
 			        createSims();                
 			        return new Integer(0);
 			    }
@@ -47,12 +53,18 @@ public class UI extends JFrame implements ItemListener, MouseListener{
 		}       
     }
     
+    public Object construct() {
+    	
+		return (new Object());
+    	
+    }
+    
     public void createHelpPanel()
    {
       try {
-		helpPanel = new HelpPanel();
-		  helpPanel.getUtility().createPanel();      
-		  tabbedPane.addTab("About",helpPanel.getPanel());
+		setHelpPanel(new HelpPanel());
+		  getHelpPanel().getUtility().createPanel();      
+		  tabbedPane.addTab("About",getHelpPanel().getPanel());
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -202,7 +214,7 @@ public class UI extends JFrame implements ItemListener, MouseListener{
         };
         swingWorker.start();
         // process window events
-        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        getMainFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
     
     @Override
@@ -511,7 +523,35 @@ public class UI extends JFrame implements ItemListener, MouseListener{
     
     @Override
 	public void mouseReleased(MouseEvent mouseEvent) {
-    }      
+    }
+
+	/**
+	 * @return the helpPanel
+	 */
+	public HelpPanel getHelpPanel() {
+		return helpPanel;
+	}
+
+	/**
+	 * @param helpPanel the helpPanel to set
+	 */
+	public void setHelpPanel(HelpPanel helpPanel) {
+		this.helpPanel = helpPanel;
+	}
+
+	/**
+	 * @return the mainFrame
+	 */
+	public JFrame getMainFrame() {
+		return mainFrame;
+	}
+
+	/**
+	 * @param mainFrame the mainFrame to set
+	 */
+	public void setMainFrame(JFrame mainFrame) {
+		this.mainFrame = mainFrame;
+	}      
 }
 
 

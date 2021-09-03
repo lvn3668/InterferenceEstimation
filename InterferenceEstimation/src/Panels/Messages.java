@@ -1,4 +1,4 @@
-package resultsPanel;
+package Panels;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

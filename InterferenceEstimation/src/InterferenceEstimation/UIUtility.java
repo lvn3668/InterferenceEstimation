@@ -15,6 +15,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import Panels.panelAnalyseButton;
+import Panels.panelCheckBoxes;
 /**
  * class that generates a panel containing a label and an instance of a ComboBox class
  * @authors Elizabeth Housworth and Lalitha Viswanath

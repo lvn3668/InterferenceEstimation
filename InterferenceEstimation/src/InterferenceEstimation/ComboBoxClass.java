@@ -107,7 +107,12 @@ public class ComboBoxClass implements ItemListener{
 	 * @param jcomboboxoptions the jcomboboxoptions to set
 	 */
 	private void setJcomboboxoptions(JComboBox<String> jcomboboxoptions) {
-		this.jcomboboxoptions = jcomboboxoptions;
+		try {
+			this.jcomboboxoptions = jcomboboxoptions;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	private JComboBox<String> jcomboboxoptions;
     private Vector<String> choices;

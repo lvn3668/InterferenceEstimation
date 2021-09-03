@@ -1,4 +1,4 @@
-package resultsPanel;
+package Panels;
 /*
  * ResultsPanel.java
  *

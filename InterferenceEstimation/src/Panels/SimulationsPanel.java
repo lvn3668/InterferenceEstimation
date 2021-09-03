@@ -1,4 +1,4 @@
-package simulationsPanel;
+package Panels;
 /*
  * SimulationsPanel.java
  *
@@ -10,9 +10,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import InterferenceEstimation.FileAndButtonPanel;
-import InterferenceEstimation.panelAnalyseButton;
-import InterferenceEstimation.panelCheckBoxes;
 import InterferenceEstimation.UIUtility;
 
 import java.io.*;
