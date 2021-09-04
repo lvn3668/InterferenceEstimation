@@ -485,11 +485,11 @@ public class Interference {
 			                // the number of ds dna breaks after which a successful cross is effected
 			                
 			                for(knumberofdoublestranddnabreaks=2;knumberofdoublestranddnabreaks<=5;knumberofdoublestranddnabreaks++) {
-			                    matrixUtils.setdMatrix(null);
-			                    matrixUtils.dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    getMatrixUtils().setdMatrix(null);
+			                    getMatrixUtils().dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            matrixUtils.getMatrixSum()[counter][innercounter]+=(1.00/2.00)*matrixUtils.getdMatrix()[counter][innercounter];
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(1.00/2.00)*matrixUtils.getdMatrix()[counter][innercounter];
 			                        }
 			                    }
 			                }// for all K
@@ -501,7 +501,7 @@ public class Interference {
 			                    matrixUtils.dMatrixFormation(prob, 0,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            matrixUtils.getMatrixSum()[counter][innercounter]+=matrixUtils.getdMatrix()[counter][innercounter];
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=matrixUtils.getdMatrix()[counter][innercounter];
 			                        }
 			                    }
 			                    
