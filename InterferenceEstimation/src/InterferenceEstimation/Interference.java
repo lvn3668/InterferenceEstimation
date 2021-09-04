@@ -11,6 +11,7 @@ import java.util.*;
 import java.math.*;
 import javax.swing.*;
 import java.lang.Integer.*;
+import org.apache.commons.math3.*;
 
 /**
  * Main class that performs backend processing for computing interference paramater
@@ -25,8 +26,8 @@ public class Interference {
     
     public Interference(String fileName) {
         try {
-			dataInFile = new Vector<String>();
-			fname = fileName;
+			setMarkers(new Vector<String>());
+			setMarkersfile(fileName);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -35,7 +36,7 @@ public class Interference {
     /** Default constructor for Interference class */
     public Interference() {
         try {
-			dataInFile = new Vector<String>();
+			setMarkers(new Vector<String>());
 			current = 0;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -51,8 +52,8 @@ public class Interference {
      */
     public Interference(File fileName) {
         try {
-			dataInFile = new Vector<String>();
-			fname = fileName.getAbsolutePath();
+			setMarkers(new Vector<String>());
+			setMarkersfile(fileName.getAbsolutePath());
 			current = 0;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -62,19 +63,19 @@ public class Interference {
     /**
      * Constructor that takes in a number of parameters
      * @param fileName File containing data
-     * @param NoSimulations integer indicating number of simulations
+     * @param numSimulations integer indicating number of simulations
      * @param NullModel boolean variable indicating whether null model is to be applied
      * @param AltModel boolean variable that declares whether alternate model is to be used or not
      * @param Sims Simulations
      */
-    public Interference(File fileName, int NoSimulations, boolean NullModel, boolean AltModel, boolean Sims) {
+    public Interference(File fileName, int numSimulations, boolean NullModel, boolean AltModel, boolean Sims) {
         try {
-			dataInFile = new Vector<String>();
-			fname = fileName.getAbsolutePath();
-			numberOfSimulations = NoSimulations;
-			doNullModel = NullModel;
-			doAltModel = AltModel;
-			doSims = Sims;
+			setMarkers(new Vector<String>());
+			setMarkersfile(fileName.getAbsolutePath());
+			setNumberOfSimulations(numSimulations);
+			estimateInterferenceParameterUnderNullModel = NullModel;
+			estimateInterferenceParameterUnderAlternateModel = AltModel;
+			performSimulations = Sims;
 			current = 0;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -87,13 +88,13 @@ public class Interference {
      */
     public boolean readInterMarkerDistances() {
         try {
-			interMarkerDistances = new double[noLinesInFile];
-			Iterator<String> iter = dataInFile.iterator();
+			setInterMarkerDistances(new double[getNumberOfLinesInFile()]);
+			Iterator<String> iter = getMarkers().iterator();
 			int counter=0;
 			try {
 				// Loop through lines in file and read in intermarker distances
 			    while(iter.hasNext()) {
-			        interMarkerDistances[counter]=Double.parseDouble((String)iter.next());
+			        getInterMarkerDistances()[counter]=Double.parseDouble((String)iter.next());
 			        counter++;
 			    }
 			} catch(Exception e) {
@@ -102,8 +103,8 @@ public class Interference {
 			    return false;
 			}
 			// 
-			numberOfIntervals = noLinesInFile;
-			numberOfMarkers = numberOfIntervals+1;
+			setNumberOfIntervals(getNumberOfLinesInFile());
+			setNumberOfMarkers(getNumberOfIntervals()+1);
 			return true;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -123,19 +124,24 @@ public class Interference {
 			int IntI, IntJ;
 			pa=0.0;
 			pb=1.0;
+			// (5 ^ 1/2 - 1)/2
+			// downhill simplex (ref press et al 1988)
+			// 
 			double tmp = (Math.pow(5.0,0.5)-1)/(2);
 			r=tmp;
 			px=pa+(1-r)*(pb-pa);
-			for(int i=0;i<numberOfIntervals;i++){
-			    normalizedIntermarkerDistances[i]=2.0*(px+(tempm+1.0)*(1-px))*interMarkerDistances[i];}
+			// Normalize as p = m+1
+			// 2*p*(m+1)*(1-p)*intermarkerdistances
+			for(int i=0;i<getNumberOfIntervals();i++){
+			    normalizedIntermarkerDistances[i]=2.0*(px+(tempm+1.0)*(1-px))*getInterMarkerDistances()[i];}
 			computeNegLogLikeTetradData(px,tempm);
-			fpx=negativeLogLikelihood;
+			fpx=getNegativeLogLikelihood();
 			py=pb-(1-r)*(pb-pa);
-			for(int i=0;i<numberOfIntervals;i++) {
-			    normalizedIntermarkerDistances[i]=2.0*(py+(tempm+1.0)*(1.0-py))*interMarkerDistances[i];
+			for(int i=0;i<getNumberOfIntervals();i++) {
+			    normalizedIntermarkerDistances[i]=2.0*(py+(tempm+1.0)*(1.0-py))*getInterMarkerDistances()[i];
 			}
 			computeNegLogLikeTetradData(py,tempm);
-			fpy=negativeLogLikelihood;
+			fpy=getNegativeLogLikelihood();
 			
 			for(int j=1;j<=8;j++) {
 			    if(fpx<fpy) {
@@ -143,33 +149,33 @@ public class Interference {
 			        fpy=fpx;
 			        py=px;
 			        px=pa+((1-r)*(pb-pa));
-			        for(int i=0;i<numberOfIntervals;i++) {
-			            normalizedIntermarkerDistances[i]=2.0*(px+( tempm + 1.0 )*(1.0-px))*interMarkerDistances[i];
+			        for(int i=0;i<getNumberOfIntervals();i++) {
+			            normalizedIntermarkerDistances[i]=2.0*(px+( tempm + 1.0 )*(1.0-px))*getInterMarkerDistances()[i];
 			        }
 			        computeNegLogLikeTetradData(px,tempm);
 			        
-			        fpx=negativeLogLikelihood;
+			        fpx=getNegativeLogLikelihood();
 			    }else {
 			        pa=px;
 			        px=py;
 			        fpx=fpy;
 			        py=pb-(1-r)*(pb-pa);
-			        for(int i=0;i<numberOfIntervals;i++){
-			            normalizedIntermarkerDistances[i]=2.0*(py+(tempm + 1.0 )*(1.0-py))*interMarkerDistances[i];}
+			        for(int i=0;i<getNumberOfIntervals();i++){
+			            normalizedIntermarkerDistances[i]=2.0*(py+(tempm + 1.0 )*(1.0-py))*getInterMarkerDistances()[i];}
 			        computeNegLogLikeTetradData(py,tempm);
-			        fpy=negativeLogLikelihood;
+			        fpy=getNegativeLogLikelihood();
 			    }
 			}
 			Bestp=(pa+pb)/2;
 			if(Bestp < 0.03) {
-			    for(int i=0;i<numberOfIntervals;i++){
-			        normalizedIntermarkerDistances[i]=2.0*(Bestp+(tempm+1.0)*(1.0-Bestp))*interMarkerDistances[i];}
+			    for(int i=0;i<getNumberOfIntervals();i++){
+			        normalizedIntermarkerDistances[i]=2.0*(Bestp+(tempm+1.0)*(1.0-Bestp))*getInterMarkerDistances()[i];}
 			    computeNegLogLikeTetradData(Bestp,tempm);
-			    fp=negativeLogLikelihood;
-			    for(int i=0;i<numberOfIntervals;i++){
-			        normalizedIntermarkerDistances[i]=2.0*(tempm+1.0)*interMarkerDistances[i];}
+			    fp=getNegativeLogLikelihood();
+			    for(int i=0;i<getNumberOfIntervals();i++){
+			        normalizedIntermarkerDistances[i]=2.0*(tempm+1.0)*getInterMarkerDistances()[i];}
 			    computeNegLogLikeTetradData(0,tempm);
-			    f0=negativeLogLikelihood;
+			    f0=getNegativeLogLikelihood();
 			    if(f0<fp)
 			        Bestp=0;
 			}
@@ -189,40 +195,40 @@ public class Interference {
         try {
 			mUnderAltModel=0;
 			pvalueUnderAltModel=0.0;
-			if(!doSims) {
+			if(!performSimulations) {
 			    done=false;
 			    current = mUnderAltModel;
 			}
 			double tempp;
-			normalizedIntermarkerDistances = new double[numberOfIntervals];
-			for(int i=0;i<numberOfIntervals;i++){
-			    normalizedIntermarkerDistances[i]=2.0*interMarkerDistances[i];}
+			normalizedIntermarkerDistances = new double[getNumberOfIntervals()];
+			for(int i=0;i<getNumberOfIntervals();i++){
+			    normalizedIntermarkerDistances[i]=2.0*getInterMarkerDistances()[i];}
 			
 			// For pvalueUnderAltModel and mUnderAltModel values, find negative log likelihood under the alt model 
 			computeNegLogLikeTetradData(pvalueUnderAltModel, mUnderAltModel);
-			minNegLogLikelihood = negativeLogLikelihood;
+			minNegLogLikelihood = getNegativeLogLikelihood();
 			// For values of interference parameter going from 1 through 20
 			// get p value from GoldenSection algorithm
 			// Get normalized values of intermarker distances
 			// for each value of m, find neg log likelihood of tetrad data
 			// find the p and m values with lowest log likelihood
 			for(int m=1;m<=20;m++) {
-			    if(!doSims)
+			    if(!performSimulations)
 			        current = m;
 			    tempp=goldSectionp(m);
-			    for(int counter=0;counter<numberOfIntervals;counter++)
-			        normalizedIntermarkerDistances[counter]=2.0*(tempp+(1-tempp)*(m+1))*interMarkerDistances[counter];
+			    for(int counter=0;counter<getNumberOfIntervals();counter++)
+			        normalizedIntermarkerDistances[counter]=2.0*(tempp+(1-tempp)*(m+1))*getInterMarkerDistances()[counter];
 			    computeNegLogLikeTetradData(tempp,m);
-			    if(negativeLogLikelihood < minNegLogLikelihood) {
+			    if(getNegativeLogLikelihood() < minNegLogLikelihood) {
 			        pvalueUnderAltModel=tempp;
 			        mUnderAltModel=m;
-			        minNegLogLikelihood = negativeLogLikelihood;
+			        minNegLogLikelihood = getNegativeLogLikelihood();
 			    } else {
 			        break;
 			    }
 			}
 			altModelMinNegLogLikelihood = minNegLogLikelihood;
-			if(!doSims){
+			if(!performSimulations){
 			   current =20;
 			}
 		} catch (Exception e) {
@@ -247,10 +253,10 @@ public class Interference {
     private void copyTetradData() {
     	
         try {
-			copiedTetradData = new int[numberOfTetrads][numberOfIntervals];
-			for(int rows=0;rows<numberOfTetrads;rows++) {
-			    for(int cols=0;cols<numberOfIntervals;cols++){
-			        copiedTetradData[rows][cols] = tetradData[rows][cols];}
+			setCopiedTetradData(new int[getNumberOfTetrads()][getNumberOfIntervals()]);
+			for(int rows=0;rows<getNumberOfTetrads();rows++) {
+			    for(int cols=0;cols<getNumberOfIntervals();cols++){
+			        getCopiedTetradData()[rows][cols] = getTetradData()[rows][cols];}
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -282,14 +288,14 @@ public class Interference {
      */
     public void simulations(int NumberOfSimulations, int Fixedm, double Fixedp, int sampleSize, boolean nullModel, boolean altModel) {
         try {
-			doSims = true;
+			performSimulations = true;
 			current = 0;
-			double[] ActualDistances = new double[numberOfIntervals+1];
-			interMarkerDistancesInActualData = new double[numberOfIntervals];
+			double[] ActualDistances = new double[getNumberOfIntervals()+1];
+			interMarkerDistancesInActualData = new double[getNumberOfIntervals()];
 			double Rate, ProbI;
 			int LeftMarker;
 			int counter=0;
-			numberOfTetrads = sampleSize;
+			setNumberOfTetrads(sampleSize);
 			if(nullModel) {
 			    simulatedMValuesUnderNullModel = new Integer[NumberOfSimulations];
 			    simulatedNullMinNegLogLikeValues = new Double[NumberOfSimulations];
@@ -302,27 +308,27 @@ public class Interference {
 			if(nullModel && altModel){
 			    simulatedLikelihoodValues = new Double[NumberOfSimulations];
 			}
-			tetradData = new int[numberOfTetrads][numberOfIntervals];
+			setTetradData(new int[getNumberOfTetrads()][getNumberOfIntervals()]);
 			// it needs intermarker distances
 			// nullm, fixedm, fixedp
-			for(int i=0;i<numberOfIntervals;i++){
-			    interMarkerDistancesInActualData[i] = interMarkerDistances[i];}
-			for(int i=0;i<numberOfIntervals+1;i++){
+			for(int i=0;i<getNumberOfIntervals();i++){
+			    interMarkerDistancesInActualData[i] = getInterMarkerDistances()[i];}
+			for(int i=0;i<getNumberOfIntervals()+1;i++){
 			    ActualDistances[i] = 0.0;}
-			for(int i =1;i<numberOfIntervals+1;i++){
+			for(int i =1;i<getNumberOfIntervals()+1;i++){
 			    ActualDistances[i] = interMarkerDistancesInActualData[i-1] + ActualDistances[i-1];}
 			
 			Rate = 2.0 *(Fixedp + (Fixedm + 1.0)*(1.0 - Fixedp));
 			ProbI = 2.0 * Fixedp / Rate;
-			int[] CrossoversBetweenMarkers =  new int[numberOfIntervals];
+			int[] CrossoversBetweenMarkers =  new int[getNumberOfIntervals()];
 			int NCoBeforeCxII;
 			double Total, NextEvent,MyRand;
 			MyRand = Math.random();
 			int i,j;
 			for(int Sim=0;Sim < NumberOfSimulations; Sim++) {
 			    current = Sim;
-			    for(i=0;i<numberOfTetrads;i++) {
-			        for(j=0;j<numberOfIntervals;j++){
+			    for(i=0;i<getNumberOfTetrads();i++) {
+			        for(j=0;j<getNumberOfIntervals();j++){
 			            CrossoversBetweenMarkers[j] = 0;}
 			        
 			        MyRand = Math.random();
@@ -337,7 +343,7 @@ public class Interference {
 			        NextEvent = -Math.log(Math.random()) / Rate;
 			        Total += NextEvent;
 			        
-			        while(Total < ActualDistances[numberOfIntervals]) 
+			        while(Total < ActualDistances[getNumberOfIntervals()]) 
 			        {
 			            counter++;
 			            while(Total > ActualDistances[LeftMarker+1]){
@@ -356,17 +362,17 @@ public class Interference {
 			            Total = Total + NextEvent;
 			        }
 			        
-			        for(j=0;j<numberOfIntervals;j++) {
+			        for(j=0;j<getNumberOfIntervals();j++) {
 			            if(CrossoversBetweenMarkers[j]==0)
-			                tetradData[i][j] = 0;
+			                getTetradData()[i][j] = 0;
 			            else {
 			                MyRand = Math.random();
 			                if(MyRand  < (1.0/3.0)*(0.5 + Math.pow(-0.5, CrossoversBetweenMarkers[j])))
-			                    tetradData[i][j] = 0;
+			                    getTetradData()[i][j] = 0;
 			                else if(MyRand < (2.0/3.0)*(0.5 + Math.pow(-0.5, CrossoversBetweenMarkers[j])))
-			                    tetradData[i][j] = 2;
+			                    getTetradData()[i][j] = 2;
 			                else
-			                    tetradData[i][j] = 1;
+			                    getTetradData()[i][j] = 1;
 			            }
 			        }
 			    } // for all tetrads
@@ -406,30 +412,30 @@ public class Interference {
         try {
 			int m=0;        
 			double p=0;
-			normalizedIntermarkerDistances = new double[numberOfIntervals];
-			for(int i=0;i<numberOfIntervals;i++){
-			    normalizedIntermarkerDistances[i]=2.0*(m+1)*interMarkerDistances[i];}
-			if(!doSims) {
+			normalizedIntermarkerDistances = new double[getNumberOfIntervals()];
+			for(int i=0;i<getNumberOfIntervals();i++){
+			    normalizedIntermarkerDistances[i]=2.0*(m+1)*getInterMarkerDistances()[i];}
+			if(!performSimulations) {
 			    done=false;
 			    current = m;
 			}
 			computeNegLogLikeTetradData(p,m);
-			minNegLogLikelihood = negativeLogLikelihood;
+			minNegLogLikelihood = getNegativeLogLikelihood();
 			for( m=1;m<=20;m++) {
-			    if(!doSims)
+			    if(!performSimulations)
 			        current = m;
-			    for(int i=0;i<numberOfIntervals;i++){
-			        normalizedIntermarkerDistances[i]=2.0*(m+1)*interMarkerDistances[i];}
+			    for(int i=0;i<getNumberOfIntervals();i++){
+			        normalizedIntermarkerDistances[i]=2.0*(m+1)*getInterMarkerDistances()[i];}
 			    computeNegLogLikeTetradData(p,m);
-			    if(negativeLogLikelihood < minNegLogLikelihood) {
+			    if(getNegativeLogLikelihood() < minNegLogLikelihood) {
 			        mUnderNullModel = m;
-			        minNegLogLikelihood = negativeLogLikelihood;
+			        minNegLogLikelihood = getNegativeLogLikelihood();
 			    } else {
 			        break;
 			    }
 			}        
       nullModelMinNegLogLikelihood  = minNegLogLikelihood;
-			if(!doSims){
+			if(!performSimulations){
 			   current = 20;
 			}
 		} catch (Exception e) {
@@ -442,41 +448,41 @@ public class Interference {
     /**
      * 
      * @param prob
-     * @param tempm
+     * @param tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted
      */
-    private void computeNegLogLikeTetradData(double prob, int tempm) {
+    private void computeNegLogLikeTetradData(double prob, int tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted) {
         
         try {
-			negativeLogLikelihood = 0;
-			identitymatrix = new double[1][tempm+1];
-			identityTranspose = new double[tempm+1][1];
-			runningMatrix = new double[tempm+1][tempm+1];
-			matrixSum = new double[tempm+1][tempm+1];
-			Temp1 = new double[tempm+1][1];
+			setNegativeLogLikelihood(0);
+			identityMatrix = new double[1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1];
+			identityMatrixTranspose = new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1];
+			runningMatrix = new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1];
+			matrixSum = new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1];
+			Temp1 = new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1];
 			int test=0;
 			double probability=0;
-			int k=1;
+			int knumberofdoublestranddnabreaks=1;
 			
-			for(int i=0;i<tempm+1;i++) {
-			    identitymatrix[0][i]=1.0;
-			    identityTranspose[i][0]=1.0;
+			for(int i=0;i<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;i++) {
+			    identityMatrix[0][i]=1.0;
+			    identityMatrixTranspose[i][0]=1.0;
 			}
-			
-			for(int i=0;i<numberOfTetrads;i++) {
-			    if(i==0) {
+			// Number of tetrads = number of cols of intermarker distances minus one 
+			for(int tetradcounter=0;tetradcounter<getNoTetrads();tetradcounter++) {
+			    if(tetradcounter==0) {
 			        test=1;
 			    } else {
 			        test=0;
-			        for(int j=0;j<numberOfIntervals;j++){
-			            test = test + (tetradData[i][j]-tetradData[i-1][j])*
-			            		(tetradData[i][j]-tetradData[i-1][j]);
+			        for(int j=0;j<getNumberOfIntervals();j++){
+			            test = test + (getTetradData()[tetradcounter][j]-getTetradData()[tetradcounter-1][j])*
+			            		(getTetradData()[tetradcounter][j]-getTetradData()[tetradcounter-1][j]);
 			            }
 			    }
-			    
-			    if(test > 0) {
+			    // Compute tetrad sum over each row	
+			    if(test > 1) {
 			        // create an identity matrix
-			        for(int tmp1=0;tmp1<tempm+1;tmp1++) {
-			            for(int tmp2=0;tmp2<tempm+1;tmp2++) {
+			        for(int tmp1=0;tmp1<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;tmp1++) {
+			            for(int tmp2=0;tmp2<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;tmp2++) {
 			                if(tmp1==tmp2)
 			                    runningMatrix[tmp1][tmp2]=1.00;
 			                else
@@ -484,23 +490,33 @@ public class Interference {
 			            }
 			        }
 			        
-			        for(int cols=0;cols<numberOfIntervals;cols++) {
+			        for(int cols=0;cols<getNumberOfIntervals();cols++) {
 			            double y = normalizedIntermarkerDistances[cols];
 			            // if it is a tetratype
-			            if(tetradData[i][cols]==1) {
+			            // compute tetrad type based on intermarker distances 
+			            // for each tetrad type (non parental ditype, tetratype, parental ditype)
+			            // compute probability based on Mathers formula (assumption: Non Chromatid Interference)
+			            // Use a running matrix to compute posterior prob of a tetrad pattern
+			            // MLE computed using simplex method fof find optimal value of m alone 
+			            // Under null model
+			            if(getTetradData()[tetradcounter][cols]==1) {
 			                dMatrix=null;
-			                dMatrixFormation(prob,1,tempm,y);
-			                for(int counter=0;counter<tempm+1;counter++) {
-			                    for(int innercounter=0;innercounter<tempm+1;innercounter++) {
+			                dMatrixFormation(prob,1,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
+			                    for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
 			                        matrixSum[counter][innercounter]=dMatrix[counter][innercounter];
 			                    }
 			                }
-			                for(k=2;k<=5;k++) {
+			                // k = number of double strand dna breaks over which negative log
+			                // likelihood is calculated for different values of m 
+			                // the number of ds dna breaks after which a successful cross is effected
+			                
+			                for(knumberofdoublestranddnabreaks=2;knumberofdoublestranddnabreaks<=5;knumberofdoublestranddnabreaks++) {
 			                    dMatrix=null;
-			                    dMatrixFormation(prob, k,tempm,y);
-			                    for(int counter=0;counter<tempm+1;counter++) {
-			                        for(int innercounter=0;innercounter<tempm+1;innercounter++) {
-			                            matrixSum[counter][innercounter]+=(2.00/3.00*(1-Math.pow((-0.5),k)))*(dMatrix[counter][innercounter]);
+			                    dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
+			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
+			                            matrixSum[counter][innercounter]+=(2.00/3.00*(1-Math.pow((-0.5),knumberofdoublestranddnabreaks)))*(dMatrix[counter][innercounter]);
 			                        }
 			                    }
 			                }// for all K
@@ -508,28 +524,28 @@ public class Interference {
 			            else // if it is PD or NPD, add the 1/3 formula first
 			                // then add Do if it is PD
 			            {
-			                for(int counter=0;counter<tempm+1;counter++) {
-			                    for(int innercounter=0;innercounter<tempm+1;innercounter++) {
+			                for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
+			                    for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
 			                        matrixSum[counter][innercounter]=0.0;
 			                    }
 			                }
-			                for(k=2;k<=5;k++) {
+			                for(knumberofdoublestranddnabreaks=2;knumberofdoublestranddnabreaks<=5;knumberofdoublestranddnabreaks++) {
 			                    dMatrix=null;
 			                    
-			                    dMatrixFormation(prob, k,tempm,y);
-			                    for(int counter=0;counter<tempm+1;counter++) {
-			                        for(int innercounter=0;innercounter<tempm+1;innercounter++) {
-			                            matrixSum[counter][innercounter]+=(1.00/3.00)*((1.00/2.00) +Math.pow((-0.5),k))*(dMatrix[counter][innercounter]);
+			                    dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
+			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
+			                            matrixSum[counter][innercounter]+=(1.00/3.00)*((1.00/2.00) +Math.pow((-0.5),knumberofdoublestranddnabreaks))*(dMatrix[counter][innercounter]);
 			                        }
 			                    }
 			                }
 			                
 			                // check
-			                if(tetradData[i][cols]==0) {
+			                if(getTetradData()[tetradcounter][cols]==0) {
 			                    dMatrix=null;                 
-			                    dMatrixFormation(prob, 0,tempm,y);
-			                    for(int counter=0;counter<tempm+1;counter++) {
-			                        for(int innercounter=0;innercounter<tempm+1;innercounter++) {
+			                    dMatrixFormation(prob, 0,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
+			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
 			                            matrixSum[counter][innercounter]+=(dMatrix[counter][innercounter]);
 			                        }
 			                    }
@@ -540,28 +556,28 @@ public class Interference {
 			            matrixProduct=null;
 			            findMatrixProduct(runningMatrix, matrixSum);
 			            
-			            for(int counter=0;counter<tempm+1;counter++) {
-			                for(int innercounter=0;innercounter<tempm+1;innercounter++) {
+			            for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
+			                for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
 			                    runningMatrix[counter][innercounter] = matrixProduct[counter][innercounter];
 			                }
 			            }
 			            
 			        } // finishing loop over all columns
 			        
-			        findMatrixProduct(runningMatrix,identityTranspose);            
-			        for(int counter=0;counter<tempm+1;counter++){
+			        findMatrixProduct(runningMatrix,identityMatrixTranspose);            
+			        for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++){
 			            Temp1[counter][0] = matrixProduct[counter][0];}
 			        
 			        matrixProduct=null;
 			        // then take with one
-			        findMatrixProduct(identitymatrix, Temp1);                
-			        probability = matrixProduct[0][0]/(tempm+1);                
+			        findMatrixProduct(identityMatrix, Temp1);                
+			        probability = matrixProduct[0][0]/(tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1);                
 			    }// if test > 0
 			    
-			    negativeLogLikelihood = negativeLogLikelihood - Math.log(probability);
+			    setNegativeLogLikelihood(getNegativeLogLikelihood() - Math.log(probability));
 			}// for each row
-			identitymatrix=null;
-			identityTranspose=null;
+			identityMatrix=null;
+			identityMatrixTranspose=null;
 			runningMatrix = null;
 			matrixProduct=null;
 			Temp1 = null;
@@ -576,6 +592,9 @@ public class Interference {
     private void dMatrixFormation(double prob, int tempk, int mval, double normDistance) {
         try {
 			dMatrix = new double[mval+1][mval+1];
+			// Each entry in DMatrix =  exp ^ -y (where y = intermarker distance = 2 px and p = m+1) /
+			// (intermarkdistance*valueofnum_Crossovers_forwhich_neglgolikelihood is being computed + j - i)
+			// 
 			if(prob==0) {
 			    for(int counter=0;counter<mval+1;counter++) {
 			        for(int innercounter=0;innercounter<mval+1;innercounter++) {
@@ -595,6 +614,26 @@ public class Interference {
 			            dMatrix[counter][innercounter]=0.0;
 			        }
 			    }
+			    // for a set of markers, compute intermarker distance 
+			    //  compute tetrad pattern  across every pair (row wise) between any two intermarker distances (col wise)
+			    // for any tetrad pattern, compute probability as
+			    // 1/ (temp m) -> assuming interference 
+			    // times 
+			    // identity and transpose needed to reduce to single number 
+			    // between identity and transpose  , matrix of different k values 
+			    // where k is number of crossovers going from 2 to 5 
+			    // 2 is minimum number of crossovers needed to produce parental ditype (0 or 2) 
+			    // for each k , the dmatrix size is temp m byb temp m -> value of interference parameter 
+			    // each entry in D(k) matrix is value of seeing the observed tetrad pattern (NPD, PD, TT) 
+			    // for given value of k and m (number of crossovers (k) that occurs after (m): unsuccessful ds dna breaks that does not result in a crossover)
+			    // TT can occur with minimum 2 crossovers 
+			    // PD can occur with minimum of 1 crossover
+			    // Each entry in DMatrix is chi square estimation of seeing the observed tetrad pattern
+			    // for given value of k and varying values of m  with m going from 0 to <parameter to function>
+			    // So each matrix give probability of observing given ttrtrad pattern for a specified value of k and values of m going from 0 to <input parameter>
+			    // interference for each value of k
+			    // a full mle is performed over all possible values of k and m 
+			   
 			    for(int counter=0;counter<mval+1;counter++) {
 			        for(int innercounter=0;innercounter<mval+1;innercounter++) {
 			            for(int innercounter2=0;innercounter2<tempk+1;innercounter2++) {
@@ -606,6 +645,12 @@ public class Interference {
 			                else
 			                    dMatrix[counter][innercounter]=dMatrix[counter][innercounter]+
 			                            (
+			                            		// e^-y * y *(pk+j-i) / (pk+j-i)! * 
+			                            		// (p / (p + (m+1)(1-p))^(numberof ds dna breaks for which MLE is computed)  *
+			                            		// (p / (p + (m+1)(1-p)^ (k temp) *
+			                            		// ((1-p)*(m+1))/(p+(m+1)*(1-p)) ^n - tempk
+			                            		// p is intermarker distance 
+			                            		// m is number of unsuccessful ds dna breaks after which a successful cross occurs
 			                            (Math.exp(-normDistance)* Math.pow(normDistance,n))
 			                            /
 			                            (computefactorial(n-innercounter2)*computefactorial(innercounter2))
@@ -674,16 +719,16 @@ public class Interference {
      */
     public void findInterMarkerDistances() {
         try {
-			interMarkerDistances = new double[numberOfIntervals];
-			for(int i=0;i<numberOfIntervals;i++) {
-			    interMarkerDistances[i]=0.0;
-			    for(int a=0;a<numberOfTetrads;a++) {
-			        if(tetradData[a][i]==2)
-			            interMarkerDistances[i] +=3.0;
+			setInterMarkerDistances(new double[getNumberOfIntervals()]);
+			for(int i=0;i<getNumberOfIntervals();i++) {
+			    getInterMarkerDistances()[i]=0.0;
+			    for(int a=0;a<getNumberOfTetrads();a++) {
+			        if(getTetradData()[a][i]==2)
+			            getInterMarkerDistances()[i] +=3.0;
 			        else
-			            interMarkerDistances[i] += (tetradData[a][i])/(2.00);
+			            getInterMarkerDistances()[i] += (getTetradData()[a][i])/(2.00);
 			    }
-			    interMarkerDistances[i] = (interMarkerDistances[i])/(numberOfTetrads);
+			    getInterMarkerDistances()[i] = (getInterMarkerDistances()[i])/(getNumberOfTetrads());
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -713,7 +758,7 @@ public class Interference {
 			findNumberOfIntervals();
 			findNumberOfTetrads();
 			int Tetrad=0;
-			tetradData = new int[numberOfTetrads][numberOfIntervals];
+			setTetradData(new int[getNumberOfTetrads()][getNumberOfIntervals()]);
 			for(int x=2;x<rowsInRawData;x+=4) {
 			    for(int xy=0;xy<columnsInRawData-1;xy++) {
 			        
@@ -722,7 +767,7 @@ public class Interference {
 			                Math.abs(((Integer)rawData[x+2][xy]).intValue()-((Integer)rawData[x+2][xy+1]).intValue()) +
 			                Math.abs(((Integer)rawData[x+3][xy]).intValue()-((Integer)rawData[x+3][xy+1]).intValue());
 			        sum = sum / 2;
-			        tetradData[Tetrad][xy]=sum;
+			        getTetradData()[Tetrad][xy]=sum;
 			    }
 			    Tetrad++;
 			}
@@ -738,7 +783,7 @@ public class Interference {
      */
     private void findNumberOfMarkersFromTetradData() {
         try {
-			numberOfMarkers = rawData[0].length+1;
+			setNumberOfMarkers(rawData[0].length+1);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -749,7 +794,7 @@ public class Interference {
      */
     private void findNumberOfIntervalsfromTetradData() {
         try {
-			numberOfIntervals = rawData[0].length;
+			setNumberOfIntervals(rawData[0].length);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -760,7 +805,7 @@ public class Interference {
      */
     private void findNumberOfTetradsfromTetradData() {
         try {
-			numberOfTetrads = rawData.length;
+			setNumberOfTetrads(rawData.length);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -776,8 +821,8 @@ public class Interference {
     @SuppressWarnings("deprecation")
 	private void fillrawdata() {
         try {
-			rawData=new Object[noLinesInFile][];
-			Iterator<String> i = dataInFile.iterator();
+			rawData=new Object[getNumberOfLinesInFile()][];
+			Iterator<String> i = getMarkers().iterator();
 			String tmp;
 			String[] splitFields= new String[1];
 			int counter=0;
@@ -792,7 +837,7 @@ public class Interference {
 			}
 			columnsInRawData = splitFields.length;
 			rowsInRawData = counter;
-			numberOfTetrads = rowsInRawData;
+			setNumberOfTetrads(rowsInRawData);
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -809,10 +854,10 @@ public class Interference {
 			findNumberOfIntervalsfromTetradData();
 			findNumberOfTetradsfromTetradData();
 			int Tetrad=0;
-			tetradData = new int[numberOfTetrads][numberOfIntervals];
+			setTetradData(new int[getNumberOfTetrads()][getNumberOfIntervals()]);
 			for(int x=0;x<rowsInRawData;x++) {
 			    for(int xy=0;xy<columnsInRawData;xy++) {
-			        tetradData[Tetrad][xy]=Integer.parseInt(rawData[x][xy]+"");
+			        getTetradData()[Tetrad][xy]=Integer.parseInt(rawData[x][xy]+"");
 			    }
 			    Tetrad++;
 			}
@@ -830,16 +875,16 @@ public class Interference {
  */
    public void sortTetradData() {
         try {
-			String[] tempTetradData = new String[numberOfTetrads];
-			for(int i=0;i<numberOfTetrads;i++) {
-			        String one = concatenate(tetradData[i]);
+			String[] tempTetradData = new String[getNumberOfTetrads()];
+			for(int i=0;i<getNumberOfTetrads();i++) {
+			        String one = concatenate(getTetradData()[i]);
 			        tempTetradData[i] = one;
 			}
 			// Sort in ascending order 
 			Arrays.sort(tempTetradData);
-			for(int i=0;i<numberOfTetrads;i++) {
-			    for(int j=0;j<numberOfMarkers-1;j++) {
-			        tetradData[i][j]= Integer.parseInt(tempTetradData[i].substring(j,j+1));                
+			for(int i=0;i<getNumberOfTetrads();i++) {
+			    for(int j=0;j<getNumberOfMarkers()-1;j++) {
+			        getTetradData()[i][j]= Integer.parseInt(tempTetradData[i].substring(j,j+1));                
 			    }
 			}
 		} catch (NumberFormatException e) {
@@ -888,10 +933,10 @@ public class Interference {
             File f = new File(filename);
             FileWriter fw = new FileWriter(f,false);
             BufferedWriter out = new BufferedWriter(fw);
-            for(int i=0;i<numberOfTetrads;i++) {
-                for(int j=0;j<numberOfIntervals;j++) {
+            for(int i=0;i<getNumberOfTetrads();i++) {
+                for(int j=0;j<getNumberOfIntervals();j++) {
                     
-                    out.write(tetradData[i][j]+"\t");
+                    out.write(getTetradData()[i][j]+"\t");
                 }
                 out.write("\n");
             }
@@ -923,13 +968,13 @@ public class Interference {
     private void writeInterMarkerDistances(String filename) {
 
         try{
-            for(int i=0;i<numberOfIntervals;i++)
-                System.out.print(interMarkerDistances[i]+"\t");
+            for(int i=0;i<getNumberOfIntervals();i++)
+                System.out.print(getInterMarkerDistances()[i]+"\t");
             File f = new File(filename);
             FileWriter fw = new FileWriter(f,false);
             BufferedWriter out = new BufferedWriter(fw);
-            for(int i=0;i<numberOfIntervals;i++)
-                out.write(interMarkerDistances[i]+"\t");
+            for(int i=0;i<getNumberOfIntervals();i++)
+                out.write(getInterMarkerDistances()[i]+"\t");
             fw.close();
         }catch(IOException io) {
             System.out.println("Error Trapping IO Exception\nClass:writeIntermarkerdistances\n" + io.toString());
@@ -938,9 +983,9 @@ public class Interference {
     
     private void printTetradData() {
         try {
-			for(int i=0;i<numberOfTetrads;i++) {
-			    for(int j=0;j<numberOfIntervals;j++) {
-			        System.out.print(tetradData[i][j]+"\t");
+			for(int i=0;i<getNumberOfTetrads();i++) {
+			    for(int j=0;j<getNumberOfIntervals();j++) {
+			        System.out.print(getTetradData()[i][j]+"\t");
 			    }
 			    System.out.println("\n");
 			}
@@ -951,7 +996,7 @@ public class Interference {
     }
     private void findNumberOfMarkers() {
         try {
-			numberOfMarkers=columnsInRawData;
+			setNumberOfMarkers(columnsInRawData);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -959,7 +1004,7 @@ public class Interference {
     }
     private void findNumberOfIntervals() {
         try {
-			numberOfIntervals = numberOfMarkers-1;
+			setNumberOfIntervals(getNumberOfMarkers()-1);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -967,7 +1012,7 @@ public class Interference {
     }
     private void findNumberOfTetrads() {
         try {
-			numberOfTetrads=(numberOfTetrads-2)/4;
+			setNumberOfTetrads((getNumberOfTetrads()-2)/4);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -981,8 +1026,8 @@ public class Interference {
     @SuppressWarnings("deprecation")
 	public boolean processRawData() {
         try {
-        rawData=new Object[noLinesInFile][];
-        Iterator<String> i = dataInFile.iterator();
+        rawData=new Object[getNumberOfLinesInFile()][];
+        Iterator<String> i = getMarkers().iterator();
         int test;
         String tmp1;
         String tmp2;
@@ -1102,7 +1147,7 @@ public class Interference {
         }
         columnsInRawData = splitFields1.length;
         rowsInRawData = counter;
-        numberOfTetrads = rowsInRawData;
+        setNumberOfTetrads(rowsInRawData);
         } catch (Exception e)
         {
          JOptionPane joptionPane = new JOptionPane("File is in invalid format",JOptionPane.ERROR_MESSAGE);
@@ -1117,13 +1162,13 @@ public class Interference {
      */
     public void readInputFile() {
         try{
-            BufferedReader in = new BufferedReader(new FileReader(fname));            
+            BufferedReader in = new BufferedReader(new FileReader(getMarkersfile()));            
             String str="";
             while((str=in.readLine())!=null) {                
-                dataInFile.add(str);
+                getMarkers().add(str);
             }
             in.close();
-            noLinesInFile=dataInFile.size();    
+            setNumberOfLinesInFile(getMarkers().size());    
         }catch (IOException ioexception) {
             System.out.println("IOException " + ioexception + "in Interference.java!");
         }
@@ -1135,7 +1180,7 @@ public class Interference {
      */
     public void printSimulationResults() {
         try {
-			for(int x=0;x<numberOfSimulations;x++) {
+			for(int x=0;x<getNumberOfSimulations();x++) {
 			    System.out.println("Simulation Number " + x + " m value under Null Model " + simulatedMValuesUnderNullModel[x]+ " Neg Log Likelihood Values under Null Model " + simulatedNullMinNegLogLikeValues[x]  + " m under alternate model " + simulatedMValuesUnderAltModel[x] + " p values under Alternate Model " + simulatedPValuesUnderAltModel[x] + " Negative Log Likelihood Values under Alternate Model " + simulatedMinNegLogLikeValuesUnderAltModel[x]);
 			}
 		} catch (Exception e) {
@@ -1240,12 +1285,12 @@ public class Interference {
      */
     public int getNoTetrads() {
         try {
-			return numberOfTetrads;
+			return getNumberOfTetrads();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return numberOfTetrads;
+		return getNumberOfTetrads();
     }
 
     public int getAltModelM() {
@@ -1385,9 +1430,81 @@ public class Interference {
 		return likelihoodRatio;
     }
   
-    private Vector<String> dataInFile;
+    /**
+	 * @return the markers
+	 */
+	public Vector<String> getMarkers() {
+		return markers;
+	}
+	/**
+	 * @param markers the markers to set
+	 */
+	public void setMarkers(Vector<String> markers) {
+		this.markers = markers;
+	}
+
+	/**
+	 * @return the markersfile
+	 */
+	public String getMarkersfile() {
+		return markersfile;
+	}
+	/**
+	 * @param markersfile the markersfile to set
+	 */
+	public void setMarkersfile(String markersfile) {
+		this.markersfile = markersfile;
+	}
+
+	/**
+	 * @return the numberOfSimulations
+	 */
+	public int getNumberOfSimulations() {
+		return numberOfSimulations;
+	}
+	/**
+	 * @param numberOfSimulations the numberOfSimulations to set
+	 */
+	public void setNumberOfSimulations(int numberOfSimulations) {
+		this.numberOfSimulations = numberOfSimulations;
+	}
+
+	/**
+	 * @param interMarkerDistances the interMarkerDistances to set
+	 */
+	public void setInterMarkerDistances(double[] interMarkerDistances) {
+		this.interMarkerDistances = interMarkerDistances;
+	}
+
+	/**
+	 * @return the numberOfLinesInFile
+	 */
+	public int getNumberOfLinesInFile() {
+		return numberOfLinesInFile;
+	}
+	/**
+	 * @param numberOfLinesInFile the numberOfLinesInFile to set
+	 */
+	public void setNumberOfLinesInFile(int numberOfLinesInFile) {
+		this.numberOfLinesInFile = numberOfLinesInFile;
+	}
+
+	/**
+	 * @return the numberOfIntervals
+	 */
+	public int getNumberOfIntervals() {
+		return numberOfIntervals;
+	}
+	/**
+	 * @param numberOfIntervals the numberOfIntervals to set
+	 */
+	public void setNumberOfIntervals(int numberOfIntervals) {
+		this.numberOfIntervals = numberOfIntervals;
+	}
+
+	private Vector<String> markers;
     
-    private int noLinesInFile;
+    private int numberOfLinesInFile;
     private int columnsInRawData, rowsInRawData;
     private Object[][] rawData;
     private int numberOfTetrads; // from VB Code
@@ -1406,9 +1523,9 @@ public class Interference {
     private int mUnderNullModel; // from VB Code
     private int mUnderAltModel; // from VB Code
     private double pvalueUnderAltModel; // from VB Code
-    private boolean doNullModel, doAltModel;
-    private double[][] identitymatrix; // from VB Code
-    private double[][] identityTranspose; // from VB Code
+    private boolean estimateInterferenceParameterUnderNullModel, estimateInterferenceParameterUnderAlternateModel;
+    private double[][] identityMatrix; // from VB Code
+    private double[][] identityMatrixTranspose; // from VB Code
     private double[][] matrixProduct; // from VB Code
     private double[][] runningMatrix;
     private double[][] matrixSum;
@@ -1426,10 +1543,130 @@ public class Interference {
     private Double simulatedPValuesUnderAltModel[];
     private Double simulatedLikelihoodValues[];
     private Double likelihoodRatio; 
-    private String fname="";
-    private boolean  doSims=false;
+    private String markersfile="";
+    private boolean  performSimulations=false;
     private int current;
     private boolean done=false;
+	/**
+	 * @return the identityMatrix
+	 */
+	private double[][] getIdentityMatrix() {
+		return this.identityMatrix;
+	}
+	/**
+	 * @param identityMatrix the identityMatrix to set
+	 */
+	private void setIdentityMatrix(double[][] identitymatrix) {
+		this.identityMatrix = identitymatrix;
+	}
+	/**
+	 * @return the identityMatrixTranspose
+	 */
+	private double[][] getIdentityMatrixTranspose() {
+		return this.identityMatrixTranspose;
+	}
+	/**
+	 * @param identityMatrixTranspose the identityMatrixTranspose to set
+	 */
+	private void setIdentityMatrixTranspose(double[][] identityTranspose) {
+		this.identityMatrixTranspose = identityTranspose;
+	}
+	/**
+	 * @return the matrixProduct
+	 */
+	private double[][] getMatrixProduct() {
+		return this.matrixProduct;
+	}
+	/**
+	 * @param matrixProduct the matrixProduct to set
+	 */
+	private void setMatrixProduct(double[][] matrixProduct) {
+		this.matrixProduct = matrixProduct;
+	}
+	/**
+	 * @return the runningMatrix
+	 */
+	private double[][] getRunningMatrix() {
+		return this.runningMatrix;
+	}
+	/**
+	 * @param runningMatrix the runningMatrix to set
+	 */
+	private void setRunningMatrix(double[][] runningMatrix) {
+		this.runningMatrix = runningMatrix;
+	}
+	/**
+	 * @return the matrixSum
+	 */
+	private double[][] getMatrixSum() {
+		return this.matrixSum;
+	}
+	/**
+	 * @param matrixSum the matrixSum to set
+	 */
+	private void setMatrixSum(double[][] matrixSum) {
+		this.matrixSum = matrixSum;
+	}
+	/**
+	 * @return the numberOfMarkers
+	 */
+	public int getNumberOfMarkers() {
+		return numberOfMarkers;
+	}
+	/**
+	 * @param numberOfMarkers the numberOfMarkers to set
+	 */
+	public void setNumberOfMarkers(int numberOfMarkers) {
+		this.numberOfMarkers = numberOfMarkers;
+	}
+	/**
+	 * @return the negativeLogLikelihood
+	 */
+	public double getNegativeLogLikelihood() {
+		return negativeLogLikelihood;
+	}
+	/**
+	 * @param negativeLogLikelihood the negativeLogLikelihood to set
+	 */
+	public void setNegativeLogLikelihood(double negativeLogLikelihood) {
+		this.negativeLogLikelihood = negativeLogLikelihood;
+	}
+	/**
+	 * @return the numberOfTetrads
+	 */
+	public int getNumberOfTetrads() {
+		return numberOfTetrads;
+	}
+	/**
+	 * @param numberOfTetrads the numberOfTetrads to set
+	 */
+	public void setNumberOfTetrads(int numberOfTetrads) {
+		this.numberOfTetrads = numberOfTetrads;
+	}
+	/**
+	 * @return the copiedTetradData
+	 */
+	public int[][] getCopiedTetradData() {
+		return copiedTetradData;
+	}
+	/**
+	 * @param copiedTetradData the copiedTetradData to set
+	 */
+	public void setCopiedTetradData(int copiedTetradData[][]) {
+		this.copiedTetradData = copiedTetradData;
+	}
+	/**
+	 * @return the tetradData
+	 */
+	public int[][] getTetradData() {
+		return tetradData;
+	}
+	/**
+	 * @param tetradData the tetradData to set
+	 */
+	public void setTetradData(int[][] tetradData) {
+		this.tetradData = tetradData;
+	}
 }
 
 
