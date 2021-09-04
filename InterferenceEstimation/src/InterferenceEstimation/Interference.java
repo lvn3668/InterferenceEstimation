@@ -386,7 +386,7 @@ public class Interference {
 			        simulatedMValuesUnderNullModel[Sim] = mUnderNullModel;
 			        simulatedNullMinNegLogLikeValues[Sim] = nullModelMinNegLogLikelihood;
 			     }
-			    if(altModel){
+			    if(altModel){    
 			        findMaxLikelihoodEstimateSAlt();
 			        simulatedMValuesUnderAltModel[Sim]=mUnderAltModel;
 			        simulatedPValuesUnderAltModel[Sim]=pvalueUnderAltModel;
