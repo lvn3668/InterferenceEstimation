@@ -120,7 +120,7 @@ final public class ExecuteBackEnd {
 			this.getInterference().convertRawToTetraType();
 			this.getInterference().sortTetradData();
 			this.getInterference().findInterMarkerDistances();
-			this.setNumberOfTetradsToBeSimulated(this.getInterference().getNoTetrads());
+			this.setNumberOfTetradsToBeSimulated(this.getInterference().getNumberOfTetrads());
 			this.getResultsPanel().addSampleSize(this.getNumberOfTetradsToBeSimulated());
 			}
 		} catch (Exception e) {
@@ -154,7 +154,7 @@ final public class ExecuteBackEnd {
      */
     final public void executeNullModel() {
         try {
-			this.getInterference().findMaxLikelihoodEstimateSNull();
+			this.getInterference().findMaximumLikelihoodEstimatesNullModel();
 			this.setNegativeLogLikelihoosUnderNullModel(this.getInterference().getNullLogLike());
 			this.setInterferenceParameterUnderNullModel( this.getInterference().getNullModelM());
 			this.getInterference().setNullModelMinNegLogLike(this.getNegativeLogLikelihoodUnderNullModel());
@@ -177,7 +177,7 @@ final public class ExecuteBackEnd {
      */
     final public void executeAlternateModel() {
         try {
-			this.getInterference().findMaxLikelihoodEstimateSAlt();
+			this.getInterference().findMaximumLikelihoodEstimatesAlternateModel();
 			this.setNegativeLogLikelihoodUnderAltModel(this.getInterference().getAltModelLogLike());
 			this.getInterference().setAltModelMinNegLogLike(this.getNegativeLogLikelihoodUnderAltModel());
 			this.setInterferenceParameterUnderAltModel(this.getInterference().getAltModelM());

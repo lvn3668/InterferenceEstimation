@@ -117,7 +117,6 @@ public class MatrixUtilities {
 	private static double computefactorial(int number) {
 	    try {
 			double answer=1.00;
-			double factNum = number;
 			if(number>1) {
 			    for(int counter=1;counter<=number;counter++){
 			        answer=answer*counter;}

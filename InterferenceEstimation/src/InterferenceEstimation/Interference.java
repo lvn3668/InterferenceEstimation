@@ -10,7 +10,10 @@ import java.util.*;
 import javax.swing.*;
 //import org.apache.commons.math3.*;
 
+import Utilities.Utilities;
 import matrixUtilities.MatrixUtilities;
+import mleAltModel.MLEAltModel;
+import mleNullModel.MLENullModel;
 
 /**
  * Main class that performs backend processing for computing interference paramater
@@ -38,6 +41,7 @@ public class Interference {
 			setMarkers(new Vector<String>());
 			setCurrent(0);
 			setMatrixUtils(new MatrixUtilities());
+			setUtilities(new Utilities());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -135,13 +139,13 @@ public class Interference {
 			// 2*p*(m+1)*(1-p)*intermarkerdistances
 			for(int i=0;i<getNumberOfIntervals();i++){
 			    getNormalizedIntermarkerDistances()[i]=2.0*(px+(tempm+1.0)*(1-px))*getInterMarkerDistances()[i];}
-			computeNegLogLikeTetradData(px,tempm);
+			computeNegativeLogLikelihoodTetradData(px,tempm);
 			fpx=getNegativeLogLikelihood();
 			py=pb-(1-r)*(pb-pa);
 			for(int i=0;i<getNumberOfIntervals();i++) {
 			    getNormalizedIntermarkerDistances()[i]=2.0*(py+(tempm+1.0)*(1.0-py))*getInterMarkerDistances()[i];
 			}
-			computeNegLogLikeTetradData(py,tempm);
+			computeNegativeLogLikelihoodTetradData(py,tempm);
 			fpy=getNegativeLogLikelihood();
 			
 			for(int j=1;j<=8;j++) {
@@ -153,8 +157,7 @@ public class Interference {
 			        for(int i=0;i<getNumberOfIntervals();i++) {
 			            getNormalizedIntermarkerDistances()[i]=2.0*(px+( tempm + 1.0 )*(1.0-px))*getInterMarkerDistances()[i];
 			        }
-			        computeNegLogLikeTetradData(px,tempm);
-			        
+			        computeNegativeLogLikelihoodTetradData(px,tempm);	        
 			        fpx=getNegativeLogLikelihood();
 			    }else {
 			        pa=px;
@@ -163,7 +166,7 @@ public class Interference {
 			        py=pb-(1-r)*(pb-pa);
 			        for(int i=0;i<getNumberOfIntervals();i++){
 			            getNormalizedIntermarkerDistances()[i]=2.0*(py+(tempm + 1.0 )*(1.0-py))*getInterMarkerDistances()[i];}
-			        computeNegLogLikeTetradData(py,tempm);
+			        computeNegativeLogLikelihoodTetradData(py,tempm);
 			        fpy=getNegativeLogLikelihood();
 			    }
 			}
@@ -171,11 +174,11 @@ public class Interference {
 			if(Bestp < 0.03) {
 			    for(int i=0;i<getNumberOfIntervals();i++){
 			        getNormalizedIntermarkerDistances()[i]=2.0*(Bestp+(tempm+1.0)*(1.0-Bestp))*getInterMarkerDistances()[i];}
-			    computeNegLogLikeTetradData(Bestp,tempm);
+			    computeNegativeLogLikelihoodTetradData(Bestp,tempm);
 			    fp=getNegativeLogLikelihood();
 			    for(int i=0;i<getNumberOfIntervals();i++){
 			        getNormalizedIntermarkerDistances()[i]=2.0*(tempm+1.0)*getInterMarkerDistances()[i];}
-			    computeNegLogLikeTetradData(0,tempm);
+			    computeNegativeLogLikelihoodTetradData(0,tempm);
 			    f0=getNegativeLogLikelihood();
 			    if(f0<fp)
 			        Bestp=0;
@@ -187,55 +190,6 @@ public class Interference {
 			e.printStackTrace();
 		}
         return 0;
-    }
-    // find MLE under Alternate Model
-    /**
-     * Finds Maximum Likelihood estimate using alternate model
-     */
-    public void findMaxLikelihoodEstimateSAlt() {
-        try {
-			setmUnderAltModel(0);
-			setPvalueUnderAltModel(0.0);
-			if(!isPerformSimulations()) {
-			    setDone(false);
-			    setCurrent(getmUnderAltModel());
-			}
-			double tempp;
-			setNormalizedIntermarkerDistances(new double[getNumberOfIntervals()]);
-			for(int i=0;i<getNumberOfIntervals();i++){
-			    getNormalizedIntermarkerDistances()[i]=2.0*getInterMarkerDistances()[i];}
-			
-			// For pvalueUnderAltModel and mUnderAltModel values, find negative log likelihood under the alt model 
-			computeNegLogLikeTetradData(getPvalueUnderAltModel(), getmUnderAltModel());
-			setMinNegLogLikelihood(getNegativeLogLikelihood());
-			// For values of interference parameter going from 1 through 20
-			// get p value from GoldenSection algorithm
-			// Get normalized values of intermarker distances
-			// for each value of m, find neg log likelihood of tetrad data
-			// find the p and m values with lowest log likelihood
-			for(int m=1;m<=20;m++) {
-			    if(!performSimulations)
-			        setCurrent(m);
-			    tempp=goldSectionp(m);
-			    for(int counter=0;counter<getNumberOfIntervals();counter++)
-			        getNormalizedIntermarkerDistances()[counter]=2.0*(tempp+(1-tempp)*(m+1))*getInterMarkerDistances()[counter];
-			    computeNegLogLikeTetradData(tempp,m);
-			    if(getNegativeLogLikelihood() < getMinNegLogLikelihood()) {
-			        setPvalueUnderAltModel(tempp);
-			        setmUnderAltModel(m);
-			        setMinNegLogLikelihood(getNegativeLogLikelihood());
-			    } else {
-			        break;
-			    }
-			}
-			setAltModelMinNegLogLikelihood(minNegLogLikelihood);
-			if(!isPerformSimulations()){
-			   setCurrent(20);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     }
     /**
      * method that tells whether the simulations or computation is done or is ongoing
@@ -289,6 +243,8 @@ public class Interference {
      */
     public void simulations(int NumberOfSimulations, int Fixedm, double Fixedp, int sampleSize, boolean nullModel, boolean altModel) {
         try {
+        	MLENullModel mlenullmodel = new MLENullModel();
+        	MLEAltModel mlealtmodel = new MLEAltModel();
 			setPerformSimulations(true);
 			setCurrent(0);
 			double[] ActualDistances = new double[getNumberOfIntervals()+1];
@@ -327,7 +283,7 @@ public class Interference {
 			MyRand = Math.random();
 			int i,j;
 			for(int Sim=0;Sim < NumberOfSimulations; Sim++) {
-			    current = Sim;
+			    setCurrent(Sim);
 			    for(i=0;i<getNumberOfTetrads();i++) {
 			        for(j=0;j<getNumberOfIntervals();j++){
 			            CrossoversBetweenMarkers[j] = 0;}
@@ -383,21 +339,21 @@ public class Interference {
 			    //
 			    findInterMarkerDistances();
 			    if(nullModel) {
-			        findMaxLikelihoodEstimateSNull();
-			        getSimulatedMValuesUnderNullModel()[Sim] = getmUnderNullModel();
-			        getSimulatedNullMinNegLogLikeValues()[Sim] = getNullModelMinNegLogLikelihood();
+			        mlenullmodel.findMaximumLikelihoodEstimatesNullModel(this);
+			        getSimulatedMValuesUnderNullModel()[Sim] = mlenullmodel.getmUnderNullModel();
+			        getSimulatedNullMinNegLogLikeValues()[Sim] = this.getNullModelMinNegLogLikelihood();
 			     }
 			    if(altModel){    
-			        findMaxLikelihoodEstimateSAlt();
-			        getSimulatedMValuesUnderAltModel()[Sim]=mUnderAltModel;
-			        getSimulatedPValuesUnderAltModel()[Sim]=pvalueUnderAltModel;
-			        getSimulatedMinNegLogLikeValuesUnderAltModel()[Sim] = altModelMinNegLogLikelihood;
+			        mlealtmodel.findMaxLikelihoodEstimateSAlt();
+			        getSimulatedMValuesUnderAltModel()[Sim]=mlealtmodel.getAltModelM();
+			        getSimulatedPValuesUnderAltModel()[Sim]=mlealtmodel.getAltp();
+			        getSimulatedMinNegLogLikeValuesUnderAltModel()[Sim] = mlealtmodel.getAltModelMinNegLogLikelihood();
 			     }
 			    if(nullModel && altModel)
 			        getSimulatedLikelihoodValues()[Sim] = 2.0*(simulatedNullMinNegLogLikeValues[Sim] - simulatedMinNegLogLikeValuesUnderAltModel[Sim]);
 			} // for all simulations
 			
-			current = NumberOfSimulations;
+			setCurrent(NumberOfSimulations);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -427,21 +383,21 @@ public class Interference {
     {
         try {
 			setNegativeLogLikelihood(0);
-			matrixUtils.setIdentityMatrix(new double[1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
-			matrixUtils.setIdentityMatrixTranspose(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
-			matrixUtils.setRunningMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
-			matrixUtils.setMatrixSum(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
-			matrixUtils.setTempMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
+			getMatrixUtils().setIdentityMatrix(new double[1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
+			getMatrixUtils().setIdentityMatrixTranspose(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
+			getMatrixUtils().setRunningMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
+			getMatrixUtils().setMatrixSum(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
+			getMatrixUtils().setTempMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
 			int test=0;
 			double probability=0;
 			int knumberofdoublestranddnabreaks=1;
 			
 			for(int i=0;i<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;i++) {
-			    matrixUtils.getIdentityMatrix()[0][i]=1.0;
-			    matrixUtils.getIdentityMatrixTranspose()[i][0]=1.0;
+			    getMatrixUtils().getIdentityMatrix()[0][i]=1.0;
+			    getMatrixUtils().getIdentityMatrixTranspose()[i][0]=1.0;
 			}
 			// Number of single spores = number of cols of intermarker distances minus one 
-			for(int tetradcounter=0;tetradcounter<getNoTetrads();tetradcounter++) {
+			for(int tetradcounter=0;tetradcounter<getNumberOfTetrads();tetradcounter++) {
 			    if(tetradcounter==0) {
 			        test=1;
 			    } else {
@@ -457,14 +413,14 @@ public class Interference {
 			        for(int tmp1=0;tmp1<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;tmp1++) {
 			            for(int tmp2=0;tmp2<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;tmp2++) {
 			                if(tmp1==tmp2)
-			                    matrixUtils.getRunningMatrix()[tmp1][tmp2]=1.00;
+			                    getMatrixUtils().getRunningMatrix()[tmp1][tmp2]=1.00;
 			                else
-			                    matrixUtils.getRunningMatrix()[tmp1][tmp2]=0.00;
+			                    getMatrixUtils().getRunningMatrix()[tmp1][tmp2]=0.00;
 			            }
 			        }
 			        
 			        for(int cols=0;cols<getNumberOfIntervals();cols++) {
-			            double y = normalizedIntermarkerDistances[cols];
+			            double y = getNormalizedIntermarkerDistances()[cols];
 			            // if it is a tetratype
 			            // compute tetrad type based on intermarker distances 
 			            // for each tetrad type (non parental ditype, tetratype, parental ditype)
@@ -473,11 +429,11 @@ public class Interference {
 			            // MLE computed using simplex method fof find optimal value of m alone 
 			            // Under null model
 			            if(getTetradData()[tetradcounter][cols]==0) {
-			                matrixUtils.setdMatrix(null);
-			                matrixUtils.dMatrixFormation(prob,1,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                getMatrixUtils().setdMatrix(null);
+			                getMatrixUtils().dMatrixFormation(prob,1,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                    for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                        matrixUtils.getMatrixSum()[counter][innercounter]=matrixUtils.getdMatrix()[counter][innercounter];
+			                        getMatrixUtils().getMatrixSum()[counter][innercounter]=getMatrixUtils().getdMatrix()[counter][innercounter];
 			                    }
 			                }
 			                // k = number of double strand dna breaks over which negative log
@@ -489,7 +445,7 @@ public class Interference {
 			                    getMatrixUtils().dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(1.00/2.00)*matrixUtils.getdMatrix()[counter][innercounter];
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(1.00/2.00)*getMatrixUtils().getdMatrix()[counter][innercounter];
 			                        }
 			                    }
 			                }// for all K
@@ -497,11 +453,11 @@ public class Interference {
 
 			                // check
 			                if(getTetradData()[tetradcounter][cols]==0) {
-			                    matrixUtils.setdMatrix(null);                 
-			                    matrixUtils.dMatrixFormation(prob, 0,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    getMatrixUtils().setdMatrix(null);                 
+			                    getMatrixUtils().dMatrixFormation(prob, 0,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=matrixUtils.getdMatrix()[counter][innercounter];
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=getMatrixUtils().getdMatrix()[counter][innercounter];
 			                        }
 			                    }
 			                    
@@ -511,15 +467,15 @@ public class Interference {
 			            {
 			                for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                    for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                        matrixUtils.getMatrixSum()[counter][innercounter]=0.0;
+			                        getMatrixUtils().getMatrixSum()[counter][innercounter]=0.0;
 			                    }
 			                }
 			                for(knumberofdoublestranddnabreaks=2;knumberofdoublestranddnabreaks<=5;knumberofdoublestranddnabreaks++) {
-			                    matrixUtils.setdMatrix(null);
-			                    matrixUtils.dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    getMatrixUtils().setdMatrix(null);
+			                    getMatrixUtils().dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            matrixUtils.getMatrixSum()[counter][innercounter]+=(1.00/2.00)*matrixUtils.getdMatrix()[counter][innercounter];
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(1.00/2.00)*getMatrixUtils().getdMatrix()[counter][innercounter];
 			                        }
 			                    }
 			                }
@@ -527,83 +483,42 @@ public class Interference {
 			                
 			            }// end of else
 			            
-			            matrixUtils.setMatrixProduct(null);
-			            matrixUtils.findMatrixProduct(matrixUtils.getRunningMatrix(), 
-			            		matrixUtils.getMatrixSum());
+			            getMatrixUtils().setMatrixProduct(null);
+			            getMatrixUtils().findMatrixProduct(getMatrixUtils().getRunningMatrix(), 
+			            		getMatrixUtils().getMatrixSum());
 			            
 			            for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                    matrixUtils.getRunningMatrix()[counter][innercounter] = matrixUtils.getMatrixProduct()[counter][innercounter];
+			                    getMatrixUtils().getRunningMatrix()[counter][innercounter] = getMatrixUtils().getMatrixProduct()[counter][innercounter];
 			                }
 			            }
 			            
 			        } // finishing loop over all columns
 			        
-			        matrixUtils.findMatrixProduct(matrixUtils.getRunningMatrix(), matrixUtils.getIdentityMatrixTranspose());            
+			        getMatrixUtils().findMatrixProduct(getMatrixUtils().getRunningMatrix(), getMatrixUtils().getIdentityMatrixTranspose());            
 			        for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++){
-			            matrixUtils.getTempMatrix()[counter][0] = matrixUtils.getMatrixProduct()[counter][0];
+			            getMatrixUtils().getTempMatrix()[counter][0] = getMatrixUtils().getMatrixProduct()[counter][0];
 			            }
 			        
-			        matrixUtils.setMatrixProduct(null);
+			        getMatrixUtils().setMatrixProduct(null);
 			        // then take with one
-			        matrixUtils.findMatrixProduct(matrixUtils.getIdentityMatrix(), matrixUtils.getTempMatrix());                
-			        probability = matrixUtils.getMatrixProduct()[0][0]/(tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1);                
+			        getMatrixUtils().findMatrixProduct(getMatrixUtils().getIdentityMatrix(), getMatrixUtils().getTempMatrix());                
+			        probability = getMatrixUtils().getMatrixProduct()[0][0]/(tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1);                
 			    }// if test > 0	    
 			    setNegativeLogLikelihood(getNegativeLogLikelihood() - Math.log(probability));
 			}// for each row
-			matrixUtils.setIdentityMatrix(null);
-			matrixUtils.setIdentityMatrixTranspose(null);
-			matrixUtils.setRunningMatrix(null);
-			matrixUtils.setMatrixProduct(null);
-			matrixUtils.setTempMatrix(null);
-			matrixUtils.setMatrixSum(null);
+			getMatrixUtils().setIdentityMatrix(null);
+			getMatrixUtils().setIdentityMatrixTranspose(null);
+			getMatrixUtils().setRunningMatrix(null);
+			getMatrixUtils().setMatrixProduct(null);
+			getMatrixUtils().setTempMatrix(null);
+			getMatrixUtils().setMatrixSum(null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 
-    }
-    
-    // find MLE under Null Model
-    /**
-     * This method finds the maximum likelihood estimate 
-     * under the counting model or the null model
-     */
-    public void findMaxLikelihoodEstimateSNull() {
-        try {
-			int m=0;        
-			double p=0;
-			normalizedIntermarkerDistances = new double[getNumberOfIntervals()];
-			for(int i=0;i<getNumberOfIntervals();i++){
-			    normalizedIntermarkerDistances[i]=2.0*(m+1)*getInterMarkerDistances()[i];}
-			if(!performSimulations) {
-			    done=false;
-			    current = m;
-			}
-			computeNegLogLikeTetradData(p,m);
-			minNegLogLikelihood = getNegativeLogLikelihood();
-			for( m=1;m<=20;m++) {
-			    if(!performSimulations)
-			        current = m;
-			    for(int i=0;i<getNumberOfIntervals();i++){
-			        normalizedIntermarkerDistances[i]=2.0*(m+1)*getInterMarkerDistances()[i];}
-			    computeNegLogLikeTetradData(p,m);
-			    if(getNegativeLogLikelihood() < minNegLogLikelihood) {
-			        mUnderNullModel = m;
-			        minNegLogLikelihood = getNegativeLogLikelihood();
-			    } else {
-			        break;
-			    }
-			}        
-      nullModelMinNegLogLikelihood  = minNegLogLikelihood;
-			if(!performSimulations){
-			   current = 20;
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     }
     
     // Compute Neg Log Likelihood of Tetrad Data
@@ -612,26 +527,27 @@ public class Interference {
      * @param prob
      * @param tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted
      */
-    private void computeNegLogLikeTetradData(double prob, int tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted) {
+    public void computeNegativeLogLikelihoodTetradData(double prob, int tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted) {
         
         try {
-			setNegativeLogLikelihood(0);
-			matrixUtils.setIdentityMatrix(new double[1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
-			matrixUtils.setIdentityMatrixTranspose(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
-			matrixUtils.setRunningMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
-			matrixUtils.setMatrixSum(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
-			matrixUtils.setTempMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
+        	MLENullModel mlenullmodel = new MLENullModel();
+			mlenullmodel.setNegativeLogLikelihood(0);
+			getMatrixUtils().setIdentityMatrix(new double[1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
+			getMatrixUtils().setIdentityMatrixTranspose(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
+			getMatrixUtils().setRunningMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
+			getMatrixUtils().setMatrixSum(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1]);
+			getMatrixUtils().setTempMatrix(new double[tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1][1]);
 			setMatrixUtils(new MatrixUtilities());
 			int test=0;
 			double probability=0;
 			int knumberofdoublestranddnabreaks=1;
 			
 			for(int i=0;i<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;i++) {
-			    matrixUtils.getIdentityMatrix()[0][i]=1.0;
-			    matrixUtils.getIdentityMatrixTranspose()[i][0]=1.0;
+			    getMatrixUtils().getIdentityMatrix()[0][i]=1.0;
+			    getMatrixUtils().getIdentityMatrixTranspose()[i][0]=1.0;
 			}
 			// Number of tetrads = number of cols of intermarker distances minus one 
-			for(int tetradcounter=0;tetradcounter<getNoTetrads();tetradcounter++) {
+			for(int tetradcounter=0;tetradcounter<getNumberOfTetrads();tetradcounter++) {
 			    if(tetradcounter==0) {
 			        test=1;
 			    } else {
@@ -647,14 +563,14 @@ public class Interference {
 			        for(int tmp1=0;tmp1<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;tmp1++) {
 			            for(int tmp2=0;tmp2<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;tmp2++) {
 			                if(tmp1==tmp2)
-			                    matrixUtils.getRunningMatrix()[tmp1][tmp2]=1.00;
+			                    getMatrixUtils().getRunningMatrix()[tmp1][tmp2]=1.00;
 			                else
-			                    matrixUtils.getRunningMatrix()[tmp1][tmp2]=0.00;
+			                    getMatrixUtils().getRunningMatrix()[tmp1][tmp2]=0.00;
 			            }
 			        }
 			        
 			        for(int cols=0;cols<getNumberOfIntervals();cols++) {
-			            double y = normalizedIntermarkerDistances[cols];
+			            double y = getNormalizedIntermarkerDistances()[cols];
 			            // if it is a tetratype
 			            // compute tetrad type based on intermarker distances 
 			            // for each tetrad type (non parental ditype, tetratype, parental ditype)
@@ -663,11 +579,11 @@ public class Interference {
 			            // MLE computed using simplex method fof find optimal value of m alone 
 			            // Under null model
 			            if(getTetradData()[tetradcounter][cols]==1) {
-			            	matrixUtils.setdMatrix(null);
-			                matrixUtils.dMatrixFormation(prob,1,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			            	getMatrixUtils().setdMatrix(null);
+			                getMatrixUtils().dMatrixFormation(prob,1,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                    for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                        matrixUtils.getMatrixSum()[counter][innercounter]=matrixUtils.getdMatrix()[counter][innercounter];
+			                        getMatrixUtils().getMatrixSum()[counter][innercounter]=getMatrixUtils().getdMatrix()[counter][innercounter];
 			                    }
 			                }
 			                // k = number of double strand dna breaks over which negative log
@@ -675,11 +591,11 @@ public class Interference {
 			                // the number of ds dna breaks after which a successful cross is effected
 			                
 			                for(knumberofdoublestranddnabreaks=2;knumberofdoublestranddnabreaks<=5;knumberofdoublestranddnabreaks++) {
-			                	matrixUtils.setdMatrix(null);
-			                    matrixUtils.dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                	getMatrixUtils().setdMatrix(null);
+			                    getMatrixUtils().dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            matrixUtils.getMatrixSum()[counter][innercounter]+=(2.00/3.00*(1-Math.pow((-0.5),knumberofdoublestranddnabreaks)))*(matrixUtils.getdMatrix()[counter][innercounter]);
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(2.00/3.00*(1-Math.pow((-0.5),knumberofdoublestranddnabreaks)))*(matrixUtils.getdMatrix()[counter][innercounter]);
 			                        }
 			                    }
 			                }// for all K
@@ -689,88 +605,68 @@ public class Interference {
 			            {
 			                for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                    for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                        matrixUtils.getMatrixSum()[counter][innercounter]=0.0;
+			                        getMatrixUtils().getMatrixSum()[counter][innercounter]=0.0;
 			                    }
 			                }
 			                for(knumberofdoublestranddnabreaks=2;knumberofdoublestranddnabreaks<=5;knumberofdoublestranddnabreaks++) {
-			                    matrixUtils.setdMatrix(null);
+			                    getMatrixUtils().setdMatrix(null);
 			                    
-			                    matrixUtils.dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    getMatrixUtils().dMatrixFormation(prob, knumberofdoublestranddnabreaks,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            matrixUtils.getMatrixSum()[counter][innercounter]+=(1.00/3.00)*((1.00/2.00) +Math.pow((-0.5),knumberofdoublestranddnabreaks))*(matrixUtils.getdMatrix()[counter][innercounter]);
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(1.00/3.00)*((1.00/2.00) +Math.pow((-0.5),knumberofdoublestranddnabreaks))*(matrixUtils.getdMatrix()[counter][innercounter]);
 			                        }
 			                    }
 			                }
 			                
 			                // check
 			                if(getTetradData()[tetradcounter][cols]==0) {
-			                    matrixUtils.setdMatrix(null);                 
-			                    matrixUtils.dMatrixFormation(prob, 0,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
+			                    getMatrixUtils().setdMatrix(null);                 
+			                    getMatrixUtils().dMatrixFormation(prob, 0,tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted,y);
 			                    for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                        for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                            matrixUtils.getMatrixSum()[counter][innercounter]+=(matrixUtils.getdMatrix()[counter][innercounter]);
+			                            getMatrixUtils().getMatrixSum()[counter][innercounter]+=(getMatrixUtils().getdMatrix()[counter][innercounter]);
 			                        }
 			                    }
 			                    
 			                }
 			            }// end of else
 			            
-			            matrixUtils.setMatrixProduct(null);
-			            matrixUtils.findMatrixProduct(matrixUtils.getRunningMatrix(), matrixUtils.getMatrixSum());
+			            getMatrixUtils().setMatrixProduct(null);
+			            getMatrixUtils().findMatrixProduct(getMatrixUtils().getRunningMatrix(), getMatrixUtils().getMatrixSum());
 			            
 			            for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++) {
 			                for(int innercounter=0;innercounter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;innercounter++) {
-			                    matrixUtils.getRunningMatrix()[counter][innercounter] = matrixUtils.getMatrixProduct()[counter][innercounter];
+			                    getMatrixUtils().getRunningMatrix()[counter][innercounter] = getMatrixUtils().getMatrixProduct()[counter][innercounter];
 			                }
 			            }
 			            
 			        } // finishing loop over all columns
 			        
-			        matrixUtils.findMatrixProduct(matrixUtils.getRunningMatrix(),matrixUtils.getIdentityMatrixTranspose());            
+			        getMatrixUtils().findMatrixProduct(getMatrixUtils().getRunningMatrix(),getMatrixUtils().getIdentityMatrixTranspose());            
 			        for(int counter=0;counter<tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1;counter++){
-			            matrixUtils.getTempMatrix()[counter][0] = matrixUtils.getMatrixProduct()[counter][0];}
+			            getMatrixUtils().getTempMatrix()[counter][0] = getMatrixUtils().getMatrixProduct()[counter][0];}
 			        
-			        matrixUtils.setMatrixProduct(null);
+			        getMatrixUtils().setMatrixProduct(null);
 			        // then take with one
-			        matrixUtils.findMatrixProduct(matrixUtils.getIdentityMatrix(), matrixUtils.getTempMatrix());                
-			        probability = matrixUtils.getMatrixProduct()[0][0]/(tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1);                
+			        getMatrixUtils().findMatrixProduct(getMatrixUtils().getIdentityMatrix(), getMatrixUtils().getTempMatrix());                
+			        probability = getMatrixUtils().getMatrixProduct()[0][0]/(tempvalueofm_numberofdsdnabreaksafterhwichasuccessfulcrossisexecuted+1);                
 			    }// if test > 0
 			    
-			    setNegativeLogLikelihood(getNegativeLogLikelihood() - Math.log(probability));
+			    mlenullmodel.setNegativeLogLikelihood(getNegativeLogLikelihood() - Math.log(probability));
 			}// for each row
-			matrixUtils.setIdentityMatrix(null);
-			matrixUtils.setIdentityMatrixTranspose(null);
-			matrixUtils.setRunningMatrix(null);
-			matrixUtils.setMatrixProduct(null);
-			matrixUtils.setTempMatrix(null);
-			matrixUtils.setMatrixSum(null);
+			getMatrixUtils().setIdentityMatrix(null);
+			getMatrixUtils().setIdentityMatrixTranspose(null);
+			getMatrixUtils().setRunningMatrix(null);
+			getMatrixUtils().setMatrixProduct(null);
+			getMatrixUtils().setTempMatrix(null);
+			getMatrixUtils().setMatrixSum(null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
     
-    // compute factorial
-    /**
-     * @param number
-     * @return calculate factorial 
-     */
-    private static double computefactorial(int number) {
-        try {
-			double answer=1.00;
-			double factNum = number;
-			if(number>1) {
-			    for(int counter=1;counter<=number;counter++){
-			        answer=answer*counter;}
-			}
-			return answer;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        return 0;
-    }
     /**
      * This method finds the intermarker distances using the raw tetrad data
      */
@@ -799,12 +695,12 @@ public class Interference {
      */
     public double[] getInterMarkerDistances() {
         try {
-			return interMarkerDistances;
+			return this.interMarkerDistances;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return interMarkerDistances;
+        return this.interMarkerDistances;
     }
     /**
      * Converts the raw data into tetrad-type data
@@ -816,13 +712,13 @@ public class Interference {
 			findNumberOfTetrads();
 			int Tetrad=0;
 			setTetradData(new int[getNumberOfTetrads()][getNumberOfIntervals()]);
-			for(int x=2;x<rowsInRawData;x+=4) {
-			    for(int xy=0;xy<columnsInRawData-1;xy++) {
+			for(int x=2;x<getRowsInRawData();x+=4) {
+			    for(int xy=0;xy<getColumnsInRawData()-1;xy++) {
 			        
-			        int sum = Math.abs(((Integer)rawData[x][xy]).intValue()-((Integer)rawData[x][xy+1]).intValue()) +
-			                Math.abs(((Integer)rawData[x+1][xy]).intValue()-((Integer)rawData[x+1][xy+1]).intValue()) +
-			                Math.abs(((Integer)rawData[x+2][xy]).intValue()-((Integer)rawData[x+2][xy+1]).intValue()) +
-			                Math.abs(((Integer)rawData[x+3][xy]).intValue()-((Integer)rawData[x+3][xy+1]).intValue());
+			        int sum = Math.abs(((Integer)getRawData()[x][xy]).intValue()-((Integer)getRawData()[x][xy+1]).intValue()) +
+			                Math.abs(((Integer)getRawData()[x+1][xy]).intValue()-((Integer)getRawData()[x+1][xy+1]).intValue()) +
+			                Math.abs(((Integer)getRawData()[x+2][xy]).intValue()-((Integer)getRawData()[x+2][xy+1]).intValue()) +
+			                Math.abs(((Integer)getRawData()[x+3][xy]).intValue()-((Integer)getRawData()[x+3][xy+1]).intValue());
 			        sum = sum / 2;
 			        getTetradData()[Tetrad][xy]=sum;
 			    }
@@ -840,7 +736,7 @@ public class Interference {
      */
     private void findNumberOfMarkersFromTetradData() {
         try {
-			setNumberOfMarkers(rawData[0].length+1);
+			setNumberOfMarkers(getRawData()[0].length+1);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -851,7 +747,7 @@ public class Interference {
      */
     private void findNumberOfIntervalsfromTetradData() {
         try {
-			setNumberOfIntervals(rawData[0].length);
+			setNumberOfIntervals(getRawData()[0].length);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -875,10 +771,9 @@ public class Interference {
     /**
      * 
      */
-    @SuppressWarnings("deprecation")
 	private void fillrawdata() {
         try {
-			rawData=new Object[getNumberOfLinesInFile()][];
+			setRawData(new Object[getNumberOfLinesInFile()][]);
 			Iterator<String> i = getMarkers().iterator();
 			String tmp;
 			String[] splitFields= new String[1];
@@ -886,15 +781,15 @@ public class Interference {
 			while(i.hasNext()) {
 			    tmp=(String)i.next();
 			    splitFields=tmp.split("\t");
-			    rawData[counter]=new Object[splitFields.length];
+			    getRawData()[counter]=new Object[splitFields.length];
 			    for(int temp=0;temp<splitFields.length;temp++) {
-			        rawData[counter][temp]= Integer.parseInt(splitFields[temp]);
+			        getRawData()[counter][temp]= Integer.parseInt(splitFields[temp]);
 			    }
 			    counter++;
 			}
-			columnsInRawData = splitFields.length;
-			rowsInRawData = counter;
-			setNumberOfTetrads(rowsInRawData);
+			setColumnsInRawData(splitFields.length);
+			setRowsInRawData(counter);
+			setNumberOfTetrads(getRowsInRawData());
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -912,9 +807,9 @@ public class Interference {
 			findNumberOfTetradsfromTetradData();
 			int Tetrad=0;
 			setTetradData(new int[getNumberOfTetrads()][getNumberOfIntervals()]);
-			for(int x=0;x<rowsInRawData;x++) {
-			    for(int xy=0;xy<columnsInRawData;xy++) {
-			        getTetradData()[Tetrad][xy]=Integer.parseInt(rawData[x][xy]+"");
+			for(int x=0;x<getRowsInRawData();x++) {
+			    for(int xy=0;xy<getColumnsInRawData();xy++) {
+			        getTetradData()[Tetrad][xy]=Integer.parseInt(getRawData()[x][xy]+"");
 			    }
 			    Tetrad++;
 			}
@@ -934,7 +829,8 @@ public class Interference {
         try {
 			String[] tempTetradData = new String[getNumberOfTetrads()];
 			for(int i=0;i<getNumberOfTetrads();i++) {
-			        String one = concatenate(getTetradData()[i]);
+			        getUtilities();
+					String one = Utilities.concatenate(getTetradData()[i]);
 			        tempTetradData[i] = one;
 			}
 			// Sort in ascending order 
@@ -950,29 +846,11 @@ public class Interference {
 		}
     }
 
-   /**
-    * 
-    * @param intArray
-    * @return 
-    */
-    
-    private static String concatenate(int[] intArray) {
-        try {
-			String tmp="";
-			for(int i=0;i<intArray.length;i++)
-			    tmp=tmp+intArray[i];
-			return tmp;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        return null;
-    }
-    private void printRawData() {
+   private void printRawData() {
         try {
 			int rows,cols;
-			for(rows=0;rows<rowsInRawData;rows++) {
-			    for(cols=0;cols<columnsInRawData;cols++)
+			for(rows=0;rows<getRowsInRawData();rows++) {
+			    for(cols=0;cols<getColumnsInRawData();cols++)
 			        System.out.print(rawData[rows][cols]+"\t");
 			    System.out.print("\n");
 			}
@@ -1010,8 +888,8 @@ public class Interference {
             File f = new File(filename);
             FileWriter fw = new FileWriter(f,false);
             BufferedWriter out = new BufferedWriter(fw);
-            for(int i=0;i<rowsInRawData;i++) {
-                for(int j=0;j<columnsInRawData;j++) {
+            for(int i=0;i<getRowsInRawData();i++) {
+                for(int j=0;j<getColumnsInRawData();j++) {
                     
                     out.write(rawData[i][j]+"\t");
                 }
@@ -1053,7 +931,7 @@ public class Interference {
     }
     private void findNumberOfMarkers() {
         try {
-			setNumberOfMarkers(columnsInRawData);
+			setNumberOfMarkers(getColumnsInRawData());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1099,17 +977,17 @@ public class Interference {
         // read first line
         tmp1=(String)i.next();
         parentalData1 = tmp1.split("\t");
-        rawData[counter]=new Object[parentalData1.length];
+        getRawData()[counter]=new Object[parentalData1.length];
         for(int temp=0;temp<parentalData1.length;temp++)
-            rawData[counter][temp]= Integer.valueOf(0);
+            getRawData()[counter][temp]= Integer.valueOf(0);
         counter++;
         
         // read second line
         tmp2=(String)i.next();
         parentalData2 = tmp2.split("\t");
-        rawData[counter]=new Object[parentalData2.length];
+        getRawData()[counter]=new Object[parentalData2.length];
         for(int temp=0;temp<parentalData2.length;temp++)
-            rawData[counter][temp]= Integer.valueOf(1);
+            getRawData()[counter][temp]= Integer.valueOf(1);
         counter++;
         
         boolean skip;
@@ -1168,42 +1046,42 @@ public class Interference {
             }
             
             if(!skip) {
-                rawData[counter]=new Object[splitFields1.length];
+                getRawData()[counter]=new Object[splitFields1.length];
                 for(int temp=0;temp<splitFields1.length;temp++) {
                     if(splitFields1[temp].equals(parentalData1[temp]))
-                        rawData[counter][temp]= Integer.valueOf(0);
+                        getRawData()[counter][temp]= Integer.valueOf(0);
                     else if(splitFields1[temp].equals(parentalData2[temp]))
-                        rawData[counter][temp]=Integer.valueOf(1);
+                        getRawData()[counter][temp]=Integer.valueOf(1);
                 }
                 counter++;
-                rawData[counter]=new Object[splitFields2.length];
+                getRawData()[counter]=new Object[splitFields2.length];
                 for(int temp=0;temp<splitFields2.length;temp++) {
                     if(splitFields2[temp].equals(parentalData1[temp]))
-                        rawData[counter][temp]= Integer.valueOf(0);
+                        getRawData()[counter][temp]= Integer.valueOf(0);
                     else if(splitFields2[temp].equals(parentalData2[temp]))
                         rawData[counter][temp]=Integer.valueOf(1);
                 }
                 counter++;
-                rawData[counter]=new Object[splitFields3.length];
+                getRawData()[counter]=new Object[splitFields3.length];
                 for(int temp=0;temp<splitFields3.length;temp++) {
                     if(splitFields3[temp].equals(parentalData1[temp]))
-                        rawData[counter][temp]= Integer.valueOf(0);
+                        getRawData()[counter][temp]= Integer.valueOf(0);
                     else if(splitFields3[temp].equals(parentalData2[temp]))
-                        rawData[counter][temp]= Integer.valueOf(1);
+                        getRawData()[counter][temp]= Integer.valueOf(1);
                 }
                 counter++;
-                rawData[counter]=new Object[splitFields4.length];
+                getRawData()[counter]=new Object[splitFields4.length];
                 for(int temp=0;temp<splitFields4.length;temp++) {
                     if(splitFields4[temp].equals(parentalData1[temp]))
-                        rawData[counter][temp]= Integer.valueOf(0);
+                        getRawData()[counter][temp]= Integer.valueOf(0);
                     else if(splitFields4[temp].equals(parentalData2[temp]))
-                        rawData[counter][temp]= Integer.valueOf(1);
+                        getRawData()[counter][temp]= Integer.valueOf(1);
                 }
                 counter++;
             }
         }
-        columnsInRawData = splitFields1.length;
-        rowsInRawData = counter;
+        setColumnsInRawData(splitFields1.length);
+        setRowsInRawData(counter);
         setNumberOfTetrads(rowsInRawData);
         } catch (Exception e)
         {
@@ -1246,63 +1124,12 @@ public class Interference {
 		}
     }
     /**
-     * Sets the interference parameter under the null model
-     * @param number Integer value of interference parameter under null model
-     */
-    public void setNullM(int number)
-    {
-        try {
-			mUnderNullModel = number;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    /**
-     * Sets the interference parameter under the alternate model
-     * @param number Integer value of interference parameter under alternate model
-     */
-    public void setAltM(int number)
-    {
-        try {
-			mUnderAltModel = number;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    /**
-     * Method that sets proportion of non interfering crossovers
-     * @param number double value of proportion of non-interfering crossovers under alternate model
-     */
-    public void setAltp(double number)
-    {
-        try {
-			pvalueUnderAltModel = number;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    /**
      * Sets minimum log likelihood value under null model
      * @param number double specifying the log likelihood value under null model
      */
     public void setNullModelMinNegLogLike(double number) {
         try {
-			nullModelMinNegLogLikelihood = number;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    /**
-     * Sets minimum log likelihood value under alternate model
-     * @param number double specifying the log likelihood value under alternate model
-     */
-    public void setAltModelMinNegLogLike(double number) {
-        try {
-			altModelMinNegLogLikelihood = number;
+			this.nullModelMinNegLogLikelihood = number;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1314,12 +1141,12 @@ public class Interference {
      */
     public double getNullModelMinNegLogLike() {
         try {
-			return nullModelMinNegLogLikelihood;
+			return this.nullModelMinNegLogLikelihood;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return nullModelMinNegLogLikelihood;
+		return this.nullModelMinNegLogLikelihood;
         
     }
     
@@ -1340,63 +1167,28 @@ public class Interference {
      * interference parameter under alternate model
      * @return integer 
      */
-    public int getNoTetrads() {
+    public int getNumberOfTetrads() {
         try {
-			return getNumberOfTetrads();
+			return this.numberOfTetrads;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return getNumberOfTetrads();
+		return this.numberOfTetrads;
     }
 
-    public int getAltModelM() {
-        try {
-			return mUnderAltModel;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	return mUnderAltModel;
-    }
-    /**
-     * p value under extended counting model
-     * @return double
-     */
-    public double getAltp() {
-        try {
-			return pvalueUnderAltModel;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return pvalueUnderAltModel;
-    }
     /**
      * returns null log likelihood
      * @return double
      */
     public double getNullLogLike() {
         try {
-			return nullModelMinNegLogLikelihood;
+			return this.nullModelMinNegLogLikelihood;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return nullModelMinNegLogLikelihood;
-    }
-    /**
-     * returns log likelihood under alternate model
-     * @return double 
-     */
-    public double getAltModelLogLike() {
-        try {
-			return altModelMinNegLogLikelihood;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return altModelMinNegLogLikelihood;
+		return this.nullModelMinNegLogLikelihood;
     }
     /**
      * returns vector of simulated null-m values
@@ -1404,12 +1196,12 @@ public class Interference {
      */
     public Double[] getSimulatedNullModelLogLike() {
         try {
-			return simulatedNullMinNegLogLikeValues;
+			return this.simulatedNullMinNegLogLikeValues;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return simulatedNullMinNegLogLikeValues;
+		return this.simulatedNullMinNegLogLikeValues;
     }
     /**
      * returns vector of simulated p values under alternate model
@@ -1417,12 +1209,12 @@ public class Interference {
      */
     public Double[] getSimulatedAltPValues() {
         try {
-			return simulatedPValuesUnderAltModel;
+			return this.simulatedPValuesUnderAltModel;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return simulatedPValuesUnderAltModel;
+		return this.simulatedPValuesUnderAltModel;
     }
     /**
      * returns vector of likelihood values under alternate model
@@ -1430,12 +1222,12 @@ public class Interference {
      */
     public Double[] getSimulatedAltModelLogLike() {
         try {
-			return simulatedMinNegLogLikeValuesUnderAltModel;
+			return this.simulatedMinNegLogLikeValuesUnderAltModel;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return simulatedMinNegLogLikeValuesUnderAltModel;
+		return this.simulatedMinNegLogLikeValuesUnderAltModel;
     }
     /**
      * 
@@ -1443,29 +1235,29 @@ public class Interference {
      */
     public Integer[] getSimulatedNullModelMValues() {
         try {
-			return simulatedMValuesUnderNullModel;
+			return this.simulatedMValuesUnderNullModel;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return simulatedMValuesUnderNullModel;
+		return this.simulatedMValuesUnderNullModel;
     }
     /**
      * return Array of values generated from Alt Model  
     */
     public Integer[] getSimulatedAltModelValues() {
         try {
-			return simulatedMValuesUnderAltModel;
+			return this.simulatedMValuesUnderAltModel;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return simulatedMValuesUnderAltModel;
+		return this.simulatedMValuesUnderAltModel;
     }
     /**
      * computes loglikelihood ratio of which model fits the tetrad data better
      */
-    public void computeLikeRatio() {
+    public void computeLikelihoodRatio() {
         try {
 			likelihoodRatio = 2*(nullModelMinNegLogLikelihood - altModelMinNegLogLikelihood);
 		} catch (Exception e) {
@@ -1479,7 +1271,7 @@ public class Interference {
      */
     public double getLikeRatio() {
         try {
-			return likelihoodRatio;
+			return this.likelihoodRatio;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1491,7 +1283,7 @@ public class Interference {
 	 * @return the markers
 	 */
 	public Vector<String> getMarkers() {
-		return markers;
+		return this.markers;
 	}
 	/**
 	 * @param markers the markers to set
@@ -1509,7 +1301,7 @@ public class Interference {
 	 * @return the markersfile
 	 */
 	public String getMarkersfile() {
-		return markersfile;
+		return this.markersfile;
 	}
 	/**
 	 * @param markersfile the markersfile to set
@@ -1527,7 +1319,7 @@ public class Interference {
 	 * @return the numberOfSimulations
 	 */
 	public int getNumberOfSimulations() {
-		return numberOfSimulations;
+		return this.numberOfSimulations;
 	}
 	/**
 	 * @param numberOfSimulations the numberOfSimulations to set
@@ -1557,7 +1349,7 @@ public class Interference {
 	 * @return the numberOfLinesInFile
 	 */
 	public int getNumberOfLinesInFile() {
-		return numberOfLinesInFile;
+		return this.numberOfLinesInFile;
 	}
 	/**
 	 * @param numberOfLinesInFile the numberOfLinesInFile to set
@@ -1575,7 +1367,7 @@ public class Interference {
 	 * @return the numberOfIntervals
 	 */
 	public int getNumberOfIntervals() {
-		return numberOfIntervals;
+		return this.numberOfIntervals;
 	}
 	/**
 	 * @param numberOfIntervals the numberOfIntervals to set
@@ -1590,7 +1382,7 @@ public class Interference {
 	}
 
 	private Vector<String> markers;
-    
+    private Utilities utilities;
     private int numberOfLinesInFile;
     private int columnsInRawData, rowsInRawData;
     private Object[][] rawData;
@@ -1603,13 +1395,7 @@ public class Interference {
     private double[] interMarkerDistances;
     private double[] normalizedIntermarkerDistances;
     
-    private double negativeLogLikelihood; // from VB Code
-    private double minNegLogLikelihood; //from VB Code
-    
-    private double nullModelMinNegLogLikelihood, altModelMinNegLogLikelihood;
-    private int mUnderNullModel; // from VB Code
-    private int mUnderAltModel; // from VB Code
-    private double pvalueUnderAltModel; // from VB Code
+    private double nullModelMinNegLogLikelihood;
     private boolean estimateInterferenceParameterUnderNullModel, estimateInterferenceParameterUnderAlternateModel;
     private int numberOfSimulations; // from VB Code 
     private int copiedTetradData[][];
@@ -1697,13 +1483,13 @@ public class Interference {
 	/**
 	 * @return the normalizedIntermarkerDistances
 	 */
-	private double[] getNormalizedIntermarkerDistances() {
+	public double[] getNormalizedIntermarkerDistances() {
 		return this.normalizedIntermarkerDistances;
 	}
 	/**
 	 * @param normalizedIntermarkerDistances the normalizedIntermarkerDistances to set
 	 */
-	private void setNormalizedIntermarkerDistances(double[] normalizedIntermarkerDistances) {
+	public void setNormalizedIntermarkerDistances(double[] normalizedIntermarkerDistances) {
 		try {
 			this.normalizedIntermarkerDistances = normalizedIntermarkerDistances;
 		} catch (Exception e) {
@@ -1718,17 +1504,6 @@ public class Interference {
 		return this.minNegLogLikelihood;
 	}
 	/**
-	 * @param minNegLogLikelihood the minNegLogLikelihood to set
-	 */
-	private void setMinNegLogLikelihood(double minNegLogLikelihood) {
-		try {
-			this.minNegLogLikelihood = minNegLogLikelihood;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/**
 	 * @return the nullModelMinNegLogLikelihood
 	 */
 	private double getNullModelMinNegLogLikelihood() {
@@ -1737,77 +1512,9 @@ public class Interference {
 	/**
 	 * @param nullModelMinNegLogLikelihood the nullModelMinNegLogLikelihood to set
 	 */
-	private void setNullModelMinNegLogLikelihood(double nullModelMinNegLogLikelihood) {
+	public void setNullModelMinNegLogLikelihood(double nullModelMinNegLogLikelihood) {
 		try {
 			this.nullModelMinNegLogLikelihood = nullModelMinNegLogLikelihood;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/**
-	 * @return the altModelMinNegLogLikelihood
-	 */
-	private double getAltModelMinNegLogLikelihood() {
-		return this.altModelMinNegLogLikelihood;
-	}
-	/**
-	 * @param altModelMinNegLogLikelihood the altModelMinNegLogLikelihood to set
-	 */
-	private void setAltModelMinNegLogLikelihood(double altModelMinNegLogLikelihood) {
-		try {
-			this.altModelMinNegLogLikelihood = altModelMinNegLogLikelihood;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/**
-	 * @return the mUnderNullModel
-	 */
-	private int getmUnderNullModel() {
-		return this.mUnderNullModel;
-	}
-	/**
-	 * @param mUnderNullModel the mUnderNullModel to set
-	 */
-	private void setmUnderNullModel(int mUnderNullModel) {
-		try {
-			this.mUnderNullModel = mUnderNullModel;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/**
-	 * @return the mUnderAltModel
-	 */
-	private int getmUnderAltModel() {
-		return this.mUnderAltModel;
-	}
-	/**
-	 * @param mUnderAltModel the mUnderAltModel to set
-	 */
-	private void setmUnderAltModel(int mUnderAltModel) {
-		try {
-			this.mUnderAltModel = mUnderAltModel;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/**
-	 * @return the pvalueUnderAltModel
-	 */
-	private double getPvalueUnderAltModel() {
-		return this.pvalueUnderAltModel;
-	}
-	/**
-	 * @param pvalueUnderAltModel the pvalueUnderAltModel to set
-	 */
-	private void setPvalueUnderAltModel(double pvalueUnderAltModel) {
-		try {
-			this.pvalueUnderAltModel = pvalueUnderAltModel;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1970,7 +1677,7 @@ public class Interference {
 	/**
 	 * @return the performSimulations
 	 */
-	private boolean isPerformSimulations() {
+	public boolean isPerformSimulations() {
 		return this.performSimulations;
 	}
 	/**
@@ -2004,7 +1711,7 @@ public class Interference {
 	/**
 	 * @param current the current to set
 	 */
-	private void setCurrent(int current) {
+	public void setCurrent(int current) {
 		try {
 			this.current = current;
 		} catch (Exception e) {
@@ -2015,7 +1722,7 @@ public class Interference {
 	/**
 	 * @param done the done to set
 	 */
-	private void setDone(boolean done) {
+	public void setDone(boolean done) {
 		try {
 			this.done = done;
 		} catch (Exception e) {
@@ -2045,23 +1752,6 @@ public class Interference {
 	 */
 	public double getNegativeLogLikelihood() {
 		return negativeLogLikelihood;
-	}
-	/**
-	 * @param negativeLogLikelihood the negativeLogLikelihood to set
-	 */
-	public void setNegativeLogLikelihood(double negativeLogLikelihood) {
-		try {
-			this.negativeLogLikelihood = negativeLogLikelihood;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/**
-	 * @return the numberOfTetrads
-	 */
-	public int getNumberOfTetrads() {
-		return numberOfTetrads;
 	}
 	/**
 	 * @param numberOfTetrads the numberOfTetrads to set
@@ -2108,6 +1798,19 @@ public class Interference {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * @return the utilities
+	 */
+	public Utilities getUtilities() {
+		return utilities;
+	}
+	/**
+	 * @param utilities the utilities to set
+	 */
+	public void setUtilities(Utilities utilities) {
+		this.utilities = utilities;
+	}
+	
 }
 
 
