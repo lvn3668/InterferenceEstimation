@@ -33,7 +33,7 @@ public class UI extends SwingWorker, JFrame {
     public UI() {
 
         try {
-			setMainFrame(new JFrame("Interference Parameter Estimation"));
+			setMainFrame(new JFrame("TetradData Parameter Estimation"));
 			setContentPane(getContentPane());             
       final SwingWorker swingWorker = new SwingWorker() {
 			    @Override

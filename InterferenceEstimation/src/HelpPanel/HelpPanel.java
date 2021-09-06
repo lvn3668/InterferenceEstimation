@@ -120,7 +120,7 @@ public class HelpPanel {
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			ui.setSize((screenSize.width)*70/100, (screenSize.height)*70/100);
 			ui.setVisible(true);
-			ui.setTitle("Interference Parameter Estimation");
+			ui.setTitle("TetradData Parameter Estimation");
 			ui.panelForLoadingMainFile = new FileAndButtonPanel();
 			ui.panelForLoadingMainFile.createPanel("Load File");
 			ui.panelForLoadingMainFile.getButton().addActionListener(ui.panelForLoadingMainFile);

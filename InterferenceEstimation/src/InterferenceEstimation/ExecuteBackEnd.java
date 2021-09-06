@@ -24,7 +24,7 @@ final public class ExecuteBackEnd {
     /** Creates a new instance of ExecuteBackEnd */
     public ExecuteBackEnd() {
         try {
-			this.interference = new Interference();
+			this.tetradData = new TetradData();
 			this.numberOfSimulations = 0;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -38,7 +38,7 @@ final public class ExecuteBackEnd {
      * @param altModelSims boolean specifying whether the data is to be simulated under the alternate model
      * @param analyseNullModel boolean specifying whether the simulated data is to be analysed under the null model
      * @param analyseAltModel boolean specifying whether the simulated data is to be analysed under the alternate model
-     * @param interferenceParameterUnderNullModel interference parameter under null model
+     * @param interferenceParameterUnderNullModel tetradData parameter under null model
      * @param pvalueunderAlternateModel p value under the alternate model
      * @param numberofsimulationstobeperformed desired number of simulations
      * @param tetradsamplesize size of simulated data that is to be generated
@@ -53,7 +53,7 @@ final public class ExecuteBackEnd {
 			this.setpValueUnderAltModel(pvalueunderAlternateModel);
 			this.setNumberOfTetradsToBeSimulated(tetradsamplesize);
 			this.setNumberOfSimulations(numberofsimulationstobeperformed);
-			this.setInterference(new Interference(this.getIntermarkerdistancesfilepointer()));
+			this.setInterference(new TetradData(this.getIntermarkerdistancesfilepointer()));
 			this.getInterference().readInputFile();
 			this.setFlagForCheckingValidityOfIntermarkerDistances(this.getInterference().readInterMarkerDistances());
 			if(this.isFlagForCheckingValidityOfIntermarkerDistances() == true)
@@ -76,7 +76,7 @@ final public class ExecuteBackEnd {
         return this.flagForCheckingValidityOfIntermarkerDistances;
     }
     /**
-     * returns current state of execution from Interference which is used to update the progressbar
+     * returns current state of execution from TetradData which is used to update the progressbar
      * @return integer 
      */
     final public int getCurrent() {
@@ -99,8 +99,8 @@ final public class ExecuteBackEnd {
     /**
      * overloaded constructor
      * @param fileToAnalyse tetrad data to be analysed
-     * @param flagtoperformsimulationsundernullmodel boolean specifying whether interference is to be estimated under null model
-     * @param altModel boolean specifying whether interference is to be estimated under alternate model
+     * @param flagtoperformsimulationsundernullmodel boolean specifying whether tetradData is to be estimated under null model
+     * @param altModel boolean specifying whether tetradData is to be estimated under alternate model
      */
     public ExecuteBackEnd(File fileToAnalyse, boolean flagtoperformsimulationsundernullmodel, boolean flagtoperformsimulationsunderaltmodel) {
         try {
@@ -112,7 +112,7 @@ final public class ExecuteBackEnd {
 			    this.lengthOfTask += 20;
 			this.setResultsPanel(new ResultsPanel(this.numberOfSimulations+3, false));
 			this.getResultsPanel().initialiseTable("Sample_Size"); //$NON-NLS-1$
-			this.setInterference(new Interference(fileToAnalyse));
+			this.setInterference(new TetradData(fileToAnalyse));
 			this.getInterference().readInputFile();
 			this.setFlagForCheckingValidityOfIntermarkerDistances( this.getInterference().processRawData());
 			if(this.isFlagForCheckingValidityOfIntermarkerDistances())
@@ -129,7 +129,7 @@ final public class ExecuteBackEnd {
 		}
     }
     /**
-     * run method calls the appropriate methods in Interference and obtaining the results to display in tabular format on screen
+     * run method calls the appropriate methods in TetradData and obtaining the results to display in tabular format on screen
      */
     final public void run() {
         try {
@@ -150,15 +150,15 @@ final public class ExecuteBackEnd {
 		}
     }
     /**
-     * computes parameter under null model by calling appropriate methods from Interference
+     * computes parameter under null model by calling appropriate methods from TetradData
      */
     final public void executeNullModel() {
         try {
-			this.getInterference().findMaximumLikelihoodEstimatesNullModel();
-			this.setNegativeLogLikelihoosUnderNullModel(this.getInterference().getNullLogLike());
-			this.setInterferenceParameterUnderNullModel( this.getInterference().getNullModelM());
-			this.getInterference().setNullModelMinNegLogLike(this.getNegativeLogLikelihoodUnderNullModel());
-			this.getInterference().setNullM(this.getInterferenceParameterUnderNullModel());
+			this.getInterference().getMlenullmodel().findMaximumLikelihoodEstimatesNullModel(this.getInterference());
+			this.setNegativeLogLikelihoosUnderNullModel(this.getInterference().getMlenullmodel().getNullLogLike());
+			this.setInterferenceParameterUnderNullModel( this.getInterference().getMlenullmodel().getNullModelM());
+			this.getInterference().getMlenullmodel().setNullModelMinNegLogLike(this.getNegativeLogLikelihoodUnderNullModel());
+			this.getInterference().getMlenullmodel().setNullM(this.getInterferenceParameterUnderNullModel());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -173,7 +173,7 @@ final public class ExecuteBackEnd {
         return this.resultsPanel;
     }
     /**
-     * estimates interference parameter under alternate model
+     * estimates tetradData parameter under alternate model
      */
     final public void executeAlternateModel() {
         try {
@@ -191,7 +191,7 @@ final public class ExecuteBackEnd {
     }
     
     /**
-     * run method calls the appropriate methods in Interference for performing simulations and obtaining the results to display in tabular format on screen
+     * run method calls the appropriate methods in TetradData for performing simulations and obtaining the results to display in tabular format on screen
      */
     final public void runSimulations() {
 
@@ -283,7 +283,7 @@ final public class ExecuteBackEnd {
     private double negativeLogLikelihoodUnderNullModel;
     private Double[] simulatedNegativeLogLikelihoodValuesUnderNullModel, simulatedNegativeLogLikelihoodValuesUnderAltModel, simulatedPValuesUnderAltModel;
     private Integer[] simulatedInterferenceParameterUnderNullModel, simulatedInterferenceParameterUnderAltModel;
-    private Interference interference;
+    private TetradData tetradData;
     private File intermarkerdistancesfilepointer;
     private int numberOfSimulations;
     private int numberoftetradstobesimulated;
@@ -581,17 +581,17 @@ final public class ExecuteBackEnd {
 		}
 	}
 	/**
-	 * @return the interference
+	 * @return the tetradData
 	 */
-	private Interference getInterference() {
+	private TetradData getInterference() {
 		return this.getInterference();
 	}
 	/**
-	 * @param interference the interference to set
+	 * @param tetradData the tetradData to set
 	 */
-	private void setInterference(Interference interference) {
+	private void setInterference(TetradData tetradData) {
 		try {
-			this.interference = interference;
+			this.tetradData = tetradData;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

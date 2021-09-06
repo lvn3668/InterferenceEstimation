@@ -122,7 +122,7 @@ public class SimulationsPanel{
 			getMainPanel().add(title,new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
 			        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 40),3);
 			
-			getPanelWithNullMComboBoxes().createPanel("Interference parameter (m): ", 0, 20,1,0); //$NON-NLS-1$
+			getPanelWithNullMComboBoxes().createPanel("TetradData parameter (m): ", 0, 20,1,0); //$NON-NLS-1$
 			getMainPanel().add(getPanelWithNullMComboBoxes().getPanel(),new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
 			        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0),4);
    
